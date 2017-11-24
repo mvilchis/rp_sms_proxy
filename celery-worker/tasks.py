@@ -2,7 +2,7 @@ import os
 import time
 from celery import Celery
 import ast, json, requests, random
-"""from gammu_load import *"""
+from gammu_load import *
 
 
 env=os.environ
@@ -43,20 +43,17 @@ def send_client_responses():
 
 @celery.task(name='mytasks.send_sms')
 def send_response(contact_cel, answer):
-    payload={"backend":"Telcel","sender":"+525521817435", "message": "respuesta de automatica","ts":"1", "id":"758af0a175f8a86"}
-    r = requests.get(RP_URL, params = payload)
-    """try:
+    try:
         payload = {"Text": answer_constant,"SMSC": {"Location":1},"Number": contact_cel}
         idx_random = random.randint(0,len(list_modem))
         # Send SMS if all is OK
         list_modem[idx_random].SendSMS(payload)
-        print 'Success, SMS was Sent'
+        print ('Success, SMS was Sent')
         return (True,payload)
     except gammu.GSMError:
         # Show error if message not sent
-        print 'Error, SMS not Sent'
+        print ('Error, SMS not Sent')
         return (False, payload)
-    """
 
 
 @celery.task(name ='mytasks.send_to_rp')
@@ -64,7 +61,7 @@ def send_to_rp(channel_idx):
 
     #Obtain responses from gammu channel and send to kannel
     # Check if channel_idx exist
-    """if (channel_idx < len(list_modem)):
+    if (channel_idx < len(list_modem)):
         status = list_modem[channel_idx].GetSMSStatus()
         remain = status['SIMUsed'] + status['PhoneUsed'] + status['TemplatesUsed']
         start = True
@@ -78,5 +75,4 @@ def send_to_rp(channel_idx):
         for m in sms:
             payload={"backend":"Telcel","sender":"+52"+m['Number'], "message":   m['Text'],"ts":"1", "id":"758af0a175f8a86"}
             r = requests.get(RP_URL, params = payload)
-    """
     return channel_idx
