@@ -14,6 +14,8 @@ redis_url = "redis://%s:%s/0" % (REDIS_HOST, REDIS_PORT)
 CELERY_BROKER_URL=redis_url
 CELERY_RESULT_BACKEND=redis_url
 RP_URL= os.getenv('RP_URL', "")
+RP_MESSAGES= os.getenv('RP_MESSAGES', "")
+
 
 
 
@@ -22,6 +24,21 @@ celery= Celery('tasks',
                 backend=CELERY_RESULT_BACKEND)
 
 
+@celery.task(name='tasks.request_to_rp')
+def get_last_msgs():
+    # Request all messages:
+    resp = requests.get(url=RP_MESSAGES)
+    data = json.loads(resp.text)
+    for item in data['results']:
+        task = celery.send_task('mytasks.send_sms', args=[item['contact'], item['message']],kwargs={})
+
+
+
+@celery.task(name='tasks.send_kannel_response')
+def send_client_responses():
+    ####### Proxy to check all channels responses
+    for i in range(32):
+        task = celery.send_task('mytasks.send_to_rp', args = [i],kwargs={})
 
 
 @celery.task(name='mytasks.send_sms')
@@ -44,10 +61,22 @@ def send_response(contact_cel, answer):
 
 @celery.task(name ='mytasks.send_to_rp')
 def send_to_rp(channel_idx):
+
+    #Obtain responses from gammu channel and send to kannel
     # Check if channel_idx exist
     """if (channel_idx < len(list_modem)):
-        #Obtain responses from gammu channel and send to kannel
-        payload={"backend":"Telcel","sender":"+52"+contact_cel, "message":   answer_constant,"ts":"1", "id":"758af0a175f8a86"}
-        r = requests.get(RP_URL, params = payload)
+        status = list_modem[channel_idx].GetSMSStatus()
+        remain = status['SIMUsed'] + status['PhoneUsed'] + status['TemplatesUsed']
+        start = True
+        while remain > 0:
+            if start:
+                sms = sm.GetNextSMS(Start = True, Folder = 0)
+                start = False
+            else:
+                sms = sm.GetNextSMS(Location = sms[0]['Location'], Folder = 0)
+            remain = remain - len(sms)
+        for m in sms:
+            payload={"backend":"Telcel","sender":"+52"+m['Number'], "message":   m['Text'],"ts":"1", "id":"758af0a175f8a86"}
+            r = requests.get(RP_URL, params = payload)
     """
     return channel_idx

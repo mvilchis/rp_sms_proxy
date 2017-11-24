@@ -20,4 +20,5 @@ RUN pip install -r requirements.txt
 EXPOSE 5000
 
 # run the app server
-ENTRYPOINT celery -A tasks beat --loglevel=info --app=worker_proxy
+ENTRYPOINT celery -A tasks beat -l debug --app=worker_proxy
+CMD ['python']
