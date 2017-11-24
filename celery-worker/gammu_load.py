@@ -19,8 +19,12 @@ def load_gsm(list_modem, idx):
         return
     print ("Salida")
 
-for idx in range(16,20):
-    load_gsm(list_modem, idx)
+for i in range(0,4):
+    load_gsm(list_modem,i)
+for i in range(8,12):
+    load_gsm(list_modem,i)
+for i in range(16,20):
+    load_gsm(list_modem,i)
+for i in range(24,28):
+    load_gsm(list_modem,i)
 
-for idx in range(21,31):
-    load_gsm(list_modem, idx)
