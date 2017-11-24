@@ -1,0 +1,39 @@
+version: '2'
+services:
+  beat:
+    build:
+      context: ./celery-master
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./celery-master:/celery-master
+    ports:
+     - "5000:5000"
+    depends_on:
+      - redis
+    environment:
+      - RP_MESSAGES=https://rapidpro.datos.gob.mx/kannel_misalud/get_messages
+  worker:
+    build:
+      context: ./celery-worker
+      dockerfile: Dockerfile
+    volumes:
+      - ./celery-worker:/celery-worker
+    depends_on:
+      - redis
+    environment:
+      - RP_URL=https://rapidpro.datos.gob.mx/handlers/kannel/receive/7fb97d11-796f-4966-be4a-2bfad4406dfe/
+  monitor:
+    build:
+      context: ./celery-worker
+      dockerfile: Dockerfile
+    volumes:
+      - ./celery-worker:/celery-worker
+    ports:
+     - "5556:5555"
+    entrypoint: flower
+    command:  -A tasks --port=5555 --broker=redis://redis:6379/0
+    depends_on:
+      - redis
+  redis:
+    image: redis
