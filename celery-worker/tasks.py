@@ -83,5 +83,7 @@ def send_to_rp(channel_idx):
             remain = remain - len(sms)
         if sms:
             for m in sms:
-                payload={"backend":"Telcel","sender":"+52"+m['Number'], "message":   m['Text'],"ts":"1", "id":"758af0a175f8a86"}
-    return channel_idx
+                payload={"backend":"Telcel","sender":m['Number'], "message":   m['Text'],"ts":"1", "id":"758af0a175f8a86"}
+                r = request.get(RP_URL, params = payload)
+
+    return (channel_idx,len(sms))
