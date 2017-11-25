@@ -1,15 +1,17 @@
 import os
-import time
+import time, redis
 from celery import Celery
 import ast, json, requests, random
 from gammu_load import *
 
 
 env=os.environ
-REDIS_HOST = os.getenv('REDIS_PORT_6379_TCP_ADDR','redis')
+REDIS_HOST = os.getenv('REDIS_PORT_6379_TCP_ADDR','localhost')
 REDIS_PORT = int(os.getenv('REDIS_PORT_6379_TCP_PORT',6379))
 redis_url = "redis://%s:%s/0" % (REDIS_HOST, REDIS_PORT)
 
+REDIS_HOST = os.getenv('REDIS_PORT_6379_TCP_ADDR','localhost')
+conn = redis.Redis(REDIS_HOST)
 
 CELERY_BROKER_URL=redis_url
 CELERY_RESULT_BACKEND=redis_url
@@ -37,7 +39,7 @@ def get_last_msgs():
 @celery.task(name='tasks.send_kannel_response')
 def send_client_responses():
     ####### Proxy to check all channels responses
-    for i in range(32):
+    for i in range(len(list_modem)):
         task = celery.send_task('mytasks.send_to_rp', args = [i],kwargs={})
 
 
@@ -45,9 +47,14 @@ def send_client_responses():
 def send_response(contact_cel, answer):
     try:
         payload = {"Text": answer_constant,"SMSC": {"Location":1},"Number": contact_cel}
-        idx_random = random.randint(0,len(list_modem)-1)
+        #### Check if have a channel of contact
+        if conn.get(contact_cel) is None:
+            idx_channel = random.randint(0,len(list_modem)-1)
+            conn.set(contact_cel, idx_channel)
+        else:
+            idx_channel = conn.get(contact_cel)
         # Send SMS if all is OK
-        list_modem[idx_random].SendSMS(payload)
+        list_modem[idx_channel].SendSMS(payload)
         print ('Success, SMS was Sent')
         return (True,payload)
     except gammu.GSMError:
