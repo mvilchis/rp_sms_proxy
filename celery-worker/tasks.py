@@ -35,7 +35,7 @@ def get_last_msgs():
         #### Redis ask to assign work
         if conn.get(contact_cel) is None:
             channel_queue = random.randint(0,LIST_MODEM-1)
-            conn.set(contact_cel, idx_channel)
+            conn.set(contact_cel, channel_queue)
         else:
             channel_queue = conn.get(contact_cel)
 
