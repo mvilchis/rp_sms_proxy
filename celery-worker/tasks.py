@@ -45,7 +45,7 @@ def send_client_responses():
 def send_response(contact_cel, answer):
     try:
         payload = {"Text": answer_constant,"SMSC": {"Location":1},"Number": contact_cel}
-        idx_random = random.randint(0,len(list_modem))
+        idx_random = random.randint(0,len(list_modem)-1)
         # Send SMS if all is OK
         list_modem[idx_random].SendSMS(payload)
         print ('Success, SMS was Sent')
