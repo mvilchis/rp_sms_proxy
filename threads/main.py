@@ -1,7 +1,7 @@
 from threading import Thread
-import os
-import requests
+import os, redis, requests,time
 from gammu_load import *
+
 
 REDIS_HOST = os.getenv('REDIS_PORT_6379_TCP_ADDR','localhost')
 conn = redis.Redis(REDIS_HOST)
@@ -16,7 +16,7 @@ def sm_callback(sm, type, data):
                 "ts":"1",
                 "id":"758af0a175f8a86"}
         r = requests.get(RP_URL, params = payload)
-        break
+
 
 def send_sms(sm_item, idx):
     while True:
@@ -33,7 +33,7 @@ def send_sms(sm_item, idx):
                 print ('Error, SMS not Sent')
                 return (False, payload)
         else:
-            status = sm.GetBatteryCharge()
+            status = sm_item.GetBatteryCharge()
             time.sleep(1)
 
 
@@ -50,7 +50,9 @@ def create_thread(sm_item,idx):
 
 def test():
     # 14
-    sm_item = list_modem[14]
+    list_modem=[]
+    sm_item = load_gsm(list_modem,27)
+    sm_item = list_modem[0]
     idx = 14
     sm_item.SetIncomingCallback(sm_callback)
 
@@ -62,7 +64,8 @@ def test():
     send_sms(sm_item, idx)
 
 def main():
-    for i in range(len(list_modem)):
+   load_all()
+   for i in range(len(list_modem)):
         create_thread(list_modem[i], i)
 
-test()
+main()
