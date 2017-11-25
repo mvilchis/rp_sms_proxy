@@ -84,6 +84,6 @@ def send_to_rp(channel_idx):
         if sms:
             for m in sms:
                 payload={"backend":"Telcel","sender":m['Number'], "message":   m['Text'],"ts":"1", "id":"758af0a175f8a86"}
-                r = request.get(RP_URL, params = payload)
+                r = requests.get(RP_URL, params = payload)
 
     return (channel_idx, len(sms) if sms else 0)
