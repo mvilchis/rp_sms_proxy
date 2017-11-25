@@ -1,0 +1,3 @@
+export RP_URL='https://rapidpro.datos.gob.mx/handlers/kannel/receive/06ce7262-ee5e-436a-b005-343875f7ac48/'
+export RP_MESSAGES='https://rapidpro.datos.gob.mx/kannel_misalud/get_messages'
+export REDIS_PORT_6379_TCP_ADDR="localhost"
