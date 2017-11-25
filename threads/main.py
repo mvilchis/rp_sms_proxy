@@ -22,16 +22,16 @@ def send_sms(sm_item, idx):
     while True:
         time.sleep(1)
         ######### Check if  have to send sms
-        if conn.get(idx):
-            data = json.loads(conn.lpop(idx))
-            payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
-            try:
-                sms_item.SendSMS(payload)
-                return (True,payload)
-            except gammu.GSMError:
-                # Show error if message not sent
-                print ('Error, SMS not Sent')
-                return (False, payload)
+        if conn.llen(idx) > 0:
+            for i in range(conn.llen(idx)):
+                data = json.loads(conn.lpop(idx))
+                payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
+                try:
+                    sms_item.SendSMS(payload)
+                    return (True,payload)
+                except gammu.GSMError:
+                    # Show error if message not sent
+                    print ('Error, SMS not Sent')
         else:
             status = sm_item.GetBatteryCharge()
             time.sleep(1)
