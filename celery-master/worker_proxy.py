@@ -24,10 +24,4 @@ celery.conf.CELERYBEAT_SCHEDULE = {
         'task': 'tasks.request_to_rp',
         'schedule': timedelta(seconds=30)
     },
-    'send-client-response' :{
-        'task' : 'tasks.send_kannel_response',
-        'schedule': timedelta(seconds = 30)
-
-
-    }
 }
