@@ -31,7 +31,6 @@ celery= Celery('tasks',
 
 EMAIL=os.getenv('EMAIL','')
 EMAIL_PASS=os.getenv('EMAIL_PASS','')
-server = smtplib.SMTP('smtp.gmail.com', 587)
 
 @celery.task(name='tasks.request_to_rp')
 def get_last_msgs():
@@ -72,7 +71,7 @@ def send_ping_task():
 def report_channels_task():
     me = EMAIL
     you = "miguel.vilchis@datos.mx"
-
+    server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.ehlo()
     server.login(EMAIL, EMAIL_PASS)
