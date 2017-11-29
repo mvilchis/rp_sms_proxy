@@ -30,7 +30,7 @@ celery= Celery('tasks',
                 backend=CELERY_RESULT_BACKEND)
 
 EMAIL=os.getenv('EMAIL','')
-EMAIL_PASS=os.getenv('EMAIL_pass','')
+EMAIL_PASS=os.getenv('EMAIL_PASS','')
 server = smtplib.SMTP('smtp.gmail.com', 587)
 
 @celery.task(name='tasks.request_to_rp')
