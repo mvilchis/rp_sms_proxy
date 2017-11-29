@@ -1,9 +1,15 @@
 from threading import Thread
 import os, redis, requests,time,json
+##########      Priority queues   ############
+from rpq.RpqQueue import RpqQueue
+
 from gammu_load import *
 
 
-REDIS_HOST = os.getenv('REDIS_PORT_6379_TCP_ADDR','localhost')
+REDIS_HOST = 'localhost'
+LIST_MODEM = 15
+LIST_QUEUE = [RpqQueue(redis.StrictRedis(host=REDIS_HOST, port=6379, db=idx), 'simple_queue') for idx in range (1, 1+LIST_MODEM)]
+
 conn = redis.Redis(REDIS_HOST)
 RP_URL= os.getenv('RP_URL', "")
 
@@ -21,16 +27,21 @@ def sm_callback(sm, type, data):
 def send_sms(sm_item, idx):
     while True:
         ######### Check if  have to send sms
-        if conn.llen(idx) > 0:
-            for i in range(conn.llen(idx)):
-                data = json.loads(conn.lpop(idx))
+        if LIST_QUEUE[idx].count() > 0:
+            for i in range(LIST_QUEUE[idx].count()):
+                data = json.loads(LIST_QUEUE[idx].popOne())
                 payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
                 try:
                     sm_item.SendSMS(payload)
+                    conn.incr(str(idx)+"_sent_sms")
                 except gammu.GSMError:
                     # Show error if message not sent
                     print ('Error, SMS not SENT en canal %d' %idx)
                     print (payload)
+                    message_dump = json.dumps(data)
+                    try_on_queue = random.randint(0,LIST_MODEM-1)
+                    LIST_QUEUE[try_on_queue].push(message_dump,100)
+                    conn.incr(str(idx)+"_failed_sms")
         else:
             try:
                 status = sm_item.GetBatteryCharge()
