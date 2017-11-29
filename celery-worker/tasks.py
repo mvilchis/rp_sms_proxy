@@ -52,9 +52,9 @@ def get_last_msgs():
         message_dump = json.dumps(message)
 
         if 'priority' in item:
-            LIST_QUEUE[channel_queue].push(message_dump,100)
+            LIST_QUEUE[int(channel_queue)].push(message_dump,100)
         else:
-            LIST_QUEUE[channel_queue].push(message_dump,10)
+            LIST_QUEUE[int(channel_queue)].push(message_dump,10)
 
 
 
