@@ -96,8 +96,8 @@ def report_channels_task():
     for idx in range(LIST_MODEM):
         html += """<tr>"""
         html +="""<td align="center">%d</td>""" %(idx)
-        html +="""<td align="center">%d</td>"""%(conn.get(idx+"_sent_sms"))
-        html +="""<td align="center">%d</td>""" %(conn.get(idx+"_failed_sms"))
+        html +="""<td align="center">%d</td>"""%(conn.get(str(idx)+"_sent_sms"))
+        html +="""<td align="center">%d</td>""" %(conn.get(str(idx)+"_failed_sms"))
         html +="""<td align="center">%d</td>"""%(LIST_QUEUE[idx].count())
         html += """</tr>"""
         conn.set(idx+"_sent_sms",0)
