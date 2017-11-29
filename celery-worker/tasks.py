@@ -100,8 +100,8 @@ def report_channels_task():
         html +="""<td align="center">%s</td>""" %(conn.get(str(idx)+"_failed_sms"))
         html +="""<td align="center">%d</td>"""%(LIST_QUEUE[idx].count())
         html += """</tr>"""
-        conn.set(idx+"_sent_sms",0)
-        conn.set(idx+"_failed_sms",0)
+        conn.set(str(idx)+"_sent_sms",0)
+        conn.set(str(idx)+"_failed_sms",0)
     html += """"</body></html>"""
 
     part1 = MIMEText(text, 'plain')
