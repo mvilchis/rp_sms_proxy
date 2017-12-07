@@ -41,11 +41,12 @@ def send_sms(sm_item, idx):
                     print (payload)
                     if "counter" in data.keys():
                         data["counter"] = 1 + data["counter"]
+                        try_on_queue = random.randint(0,LIST_MODEM-1)
                     else:
                         data["counter"] = 0
+                        try_on_queue = idx
                     if data["counter"] <= 4: #Only try to resend three times 
                         message_dump = json.dumps(data)
-                        try_on_queue = random.randint(0,LIST_MODEM-1)
                         LIST_QUEUE[try_on_queue].push(message_dump,100)
                     conn.incr(str(idx)+"_failed_sms")
         else:
