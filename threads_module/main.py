@@ -22,7 +22,8 @@ def sm_callback(sm, type, data):
                 "ts":"1",
                 "id":"758af0a175f8a86"}
         r = requests.get(RP_URL, params = payload)
-
+    else:
+        print data
 
 def send_sms(sm_item, idx):
     while True:
@@ -38,9 +39,14 @@ def send_sms(sm_item, idx):
                     # Show error if message not sent
                     print ('Error, SMS not SENT en canal %d' %idx)
                     print (payload)
-                    message_dump = json.dumps(data)
-                    try_on_queue = random.randint(0,LIST_MODEM-1)
-                    LIST_QUEUE[try_on_queue].push(message_dump,100)
+                    if "counter" in data.keys():
+                        data["counter"] = 1 + data["counter"]
+                    else:
+                        data["counter"] = 0
+                    if data["counter"] <= 4: #Only try to resend three times 
+                        message_dump = json.dumps(data)
+                        try_on_queue = random.randint(0,LIST_MODEM-1)
+                        LIST_QUEUE[try_on_queue].push(message_dump,100)
                     conn.incr(str(idx)+"_failed_sms")
         else:
             try:
