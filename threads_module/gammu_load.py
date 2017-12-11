@@ -32,6 +32,9 @@ def load_all():
         load_gsm(list_modem, i)
 
 def load_prospera():
-    load_gsm(list_prospera, 4)
+    load_gsm(list_prospera, 31)
+    load_gsm(list_prospera, 30)
+    load_gsm(list_prospera, 29)
+    load_gsm(list_prospera, 28)
 
 

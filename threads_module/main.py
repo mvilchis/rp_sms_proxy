@@ -13,6 +13,7 @@ LIST_QUEUE = [RpqQueue(redis.StrictRedis(host=REDIS_HOST, port=6379, db=idx), 's
 
 conn = redis.Redis(REDIS_HOST)
 RP_URL= os.getenv('RP_URL', "")
+RP_URL_PROSPERA= os.getenv('RP_URL_PROSPERA', "")
 
 def sm_callback(sm, type, data):
     if not data.has_key('Number'):
@@ -153,7 +154,7 @@ def main():
     #Init prospera
     load_prospera()
     for i in range(len(list_prospera)):
-        create_thread(list_prospera[i], i)
+        create_prospera_thread(list_prospera[i], i)
 
 
 
