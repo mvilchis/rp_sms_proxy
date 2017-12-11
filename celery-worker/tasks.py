@@ -10,7 +10,7 @@ from rpq.RpqQueue import RpqQueue
 
 ################# Constants ##################
 LIST_MODEM = 15
-
+LIST_PROSPERA=4
 ##########     Global variables     ##########
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
@@ -44,9 +44,15 @@ def get_last_msgs():
         #### Redis ask to assign work
         if conn.get(contact_cel) is None:
             channel_queue = random.randint(0,LIST_MODEM-1)
-            conn.set(contact_cel, channel_queue)
+            conn.set(contact_cel, {"channel":channel_queue, "is_prospera": False})
         else:
-            channel_queue = conn.get(contact_cel)
+            if "is_prospera" in conn.get(contact_cel) and conn.get(contact_cel)["is_prospera"]:
+                channel_queue = conn.get(contact_cel)["channel"]
+                message = {"contact":contact_cel, "message": message}
+                message_dump = json.dumps(message)
+                conn.rpush(channel_queue, message_dump)
+            else:
+                channel_queue = conn.get(contact_cel)["channel"]
 
         message = {"contact":contact_cel, "message": message}
         message_dump = json.dumps(message)
@@ -98,10 +104,28 @@ def report_channels_task():
         html +="""<td align="center">%d</td>""" %(idx)
         html +="""<td align="center">%s</td>"""%(conn.get(str(idx)+"_sent_sms"))
         html +="""<td align="center">%s</td>""" %(conn.get(str(idx)+"_failed_sms"))
+        html +="""<td align="center">%s</td>""" %(conn.get(str(idx)+"_not_sent_sms"))
         html +="""<td align="center">%d</td>"""%(LIST_QUEUE[idx].count())
         html += """</tr>"""
         conn.set(str(idx)+"_sent_sms",0)
         conn.set(str(idx)+"_failed_sms",0)
+        conn.set(str(idx)+"_not_sent_sms",0)
+
+
+    for idx in range(LIST_PROSPERA):
+        html += """<tr>"""
+        html +="""<td align="center">%d</td>""" %(idx)
+        html +="""<td align="center">%s</td>"""%(conn.get(str(idx)+"_sent_sms_prospera"))
+        html +="""<td align="center">%s</td>""" %(conn.get(str(idx)+"_failed_sms_prospera"))
+        html +="""<td align="center">%s</td>""" %(conn.get(str(idx)+"_not_sent_sms_prospera"))
+        html +="""<td align="center">%d</td>"""%(conn.llen(idx))
+        html += """</tr>"""
+        conn.set(str(idx)+"_sent_sms_prospera",0)
+        conn.set(str(idx)+"_failed_sms_prospera",0)
+        conn.set(str(idx)+"_not_sent_sms_prospera",0)
+
+
+
     html += """"</body></html>"""
 
     part1 = MIMEText(text, 'plain')

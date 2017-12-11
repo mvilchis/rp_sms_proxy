@@ -1,6 +1,7 @@
 import gammu ,sys
 
 list_modem = []
+list_prospera = []
 def load_gsm(list_modem, idx):
     print("Entrando %d" % idx)
     item = gammu.StateMachine()
@@ -30,5 +31,7 @@ def load_all():
     for i in range(26,28):
         load_gsm(list_modem, i)
 
+def load_prospera():
+    load_gsm(list_prospera, 4)
 
 
