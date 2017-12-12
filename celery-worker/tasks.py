@@ -46,13 +46,14 @@ def get_last_msgs():
             channel_queue = random.randint(0,LIST_MODEM-1)
             conn.set(contact_cel, {"channel":channel_queue, "is_prospera": False})
         else:
-            if "is_prospera" in conn.get(contact_cel) and conn.get(contact_cel)["is_prospera"]:
-                channel_queue = conn.get(contact_cel)["channel"]
+            if "is_prospera" in conn.get(contact_cel) and ast.literal_eval(conn.get(contact_cel))["is_prospera"]:
+                channel_queue = ast.literal_eval(conn.get(contact_cel))["channel"]
                 message = {"contact":contact_cel, "message": message}
                 message_dump = json.dumps(message)
                 conn.rpush(channel_queue, message_dump)
+                return
             else:
-                channel_queue = conn.get(contact_cel)["channel"]
+                channel_queue = ast.literal_eval(conn.get(contact_cel))["channel"]
 
         message = {"contact":contact_cel, "message": message}
         message_dump = json.dumps(message)

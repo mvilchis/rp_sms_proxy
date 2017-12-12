@@ -13,7 +13,8 @@ def add_to_redis(lista, queue):
         conn.set(item, {"channel":queue, "is_prospera": True})
 
 def main():
-    add_to_redis(g1,0)
-    add_to_redis(g2,1)
-    add_to_redis(g3,2)
-    add_to_redis(g4,3)
+    add_to_redis(grupo1,0)
+    add_to_redis(grupo2,1)
+    add_to_redis(grupo3,2)
+    add_to_redis(grupo4,3)
+main()

@@ -18,16 +18,17 @@ RP_URL_PROSPERA= os.getenv('RP_URL_PROSPERA', "")
 def sm_callback(sm, type, data):
     if not data.has_key('Number'):
         data = sm.GetSMS(data['Folder'], data['Location'])[0]
-        payload={"backend":"Telcel",
+        #Now delete sms 
+        sm.DeleteSMS(Folder = data['Folder'], Location = data['Location'])
+    payload={"backend":"Telcel",
                 "sender":data['Number'],
                 "message":data["Text"],
                 "ts":"1",
                 "id":"758af0a175f8a86"}
-        r = requests.get(RP_URL, params = payload)
-    else:
-        print data
+    r = requests.get(RP_URL, params = payload)
 
 def send_sms(sm_item, idx):
+    start = True
     while True:
         ######### Check if  have to send sms
         if LIST_QUEUE[idx].count() > 0:
@@ -54,11 +55,11 @@ def send_sms(sm_item, idx):
                         conn.incr(str(idx)+"_not_sent_sms")
                     conn.incr(str(idx)+"_failed_sms")
         else:
-            try:
+           try:
                 status = sm_item.GetBatteryCharge()
-            except:
+           except:
                 pass
-            time.sleep(1)
+           time.sleep(1)
 
 
 def create_thread(sm_item,idx):
@@ -76,6 +77,8 @@ def create_thread(sm_item,idx):
 ###############         Prospera  Part       #########################
 
 def send_sms_prospera(sm_item, idx):
+    start = True
+
     while True:
         ######### Check if  have to send sms
         if conn.llen(idx) > 0:
@@ -101,7 +104,7 @@ def send_sms_prospera(sm_item, idx):
                     else:
                         conn.incr(str(idx)+"_not_sent_sms_prospera")
                     conn.incr(str(idx)+"_failed_sms_prospera")
-        else:
+        else: 
             try:
                 status = sm_item.GetBatteryCharge()
             except:
@@ -134,16 +137,14 @@ def create_prospera_thread(sm_item,idx):
 def test():
     # 14
     list_modem=[]
-    sm_item = load_gsm(list_modem,27)
+    sm_item = load_gsm(list_modem,11)
     sm_item = list_modem[0]
-    idx = 14
+    idx = 7
     sm_item.SetIncomingCallback(sm_callback)
-
     try:
-        sm_item.SetIncomingSMS()
+        sm_item.SetIncomingUSSD()
     except gammu.ERR_NOTSUPPORTED:
         print 'Your phone does not support incoming SMS notifications!'
-
     send_sms(sm_item, idx)
 
 def main():
@@ -151,11 +152,12 @@ def main():
    for i in range(len(list_modem)):
         create_thread(list_modem[i], i)
 
-    #Init prospera
-    load_prospera()
-    for i in range(len(list_prospera)):
-        create_prospera_thread(list_prospera[i], i)
+   #Init prospera
+   load_prospera()
+   for i in range(len(list_prospera)):
+       create_prospera_thread(list_prospera[i], i)
 
 
 
 main()
+#test()
