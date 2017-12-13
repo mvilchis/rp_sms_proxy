@@ -18,7 +18,7 @@ RP_URL_PROSPERA= os.getenv('RP_URL_PROSPERA', "")
 def sm_callback(sm, type, data):
     if not data.has_key('Number'):
         data = sm.GetSMS(data['Folder'], data['Location'])[0]
-        #Now delete sms 
+        #Now delete sms
         sm.DeleteSMS(Folder = data['Folder'], Location = data['Location'])
     payload={"backend":"Telcel",
                 "sender":data['Number'],
@@ -37,7 +37,7 @@ def send_sms(sm_item, idx):
                 payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
                 try:
                     sm_item.SendSMS(payload)
-                    conn.incr(str(idx)+"_sent_sms")
+                    conn.incr("_"+str(idx)+"_sent_sms")
                 except gammu.GSMError:
                     # Show error if message not sent
                     print ('Error, SMS not SENT en canal %d' %idx)
@@ -52,8 +52,8 @@ def send_sms(sm_item, idx):
                         message_dump = json.dumps(data)
                         LIST_QUEUE[try_on_queue].push(message_dump,100)
                     else:
-                        conn.incr(str(idx)+"_not_sent_sms")
-                    conn.incr(str(idx)+"_failed_sms")
+                        conn.incr("_"+str(idx)+"_not_sent_sms")
+                    conn.incr("_"+str(idx)+"_failed_sms")
         else:
            try:
                 status = sm_item.GetBatteryCharge()
@@ -87,7 +87,7 @@ def send_sms_prospera(sm_item, idx):
                 payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
                 try:
                     sm_item.SendSMS(payload)
-                    conn.incr(str(idx)+"_sent_sms_prospera")
+                    conn.incr("_"+str(idx)+"_sent_sms_prospera")
                 except gammu.GSMError:
                     # Show error if message not sent
                     if "counter" in data.keys():
@@ -104,9 +104,9 @@ def send_sms_prospera(sm_item, idx):
                         message_dump = json.dumps(data)
                         conn.rpush(try_on_queue,message_dump)
                     else:
-                        conn.incr(str(idx)+"_not_sent_sms_prospera")
-                    conn.incr(str(idx)+"_failed_sms_prospera")
-        else: 
+                        conn.incr("_"+str(idx)+"_not_sent_sms_prospera")
+                    conn.incr("_"+str(idx)+"_failed_sms_prospera")
+        else:
             try:
                 status = sm_item.GetBatteryCharge()
             except:

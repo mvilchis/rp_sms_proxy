@@ -113,27 +113,27 @@ def report_channels_task():
     for idx in range(LIST_MODEM):
         html += """<tr>"""
         html +="""<td align="center">%d</td>""" %(idx)
-        html +="""<td align="center">%s</td>"""%(conn.get(str(idx)+"_sent_sms"))
-        html +="""<td align="center">%s</td>""" %(conn.get(str(idx)+"_failed_sms"))
-        html +="""<td align="center">%s</td>""" %(conn.get(str(idx)+"_not_sent_sms"))
+        html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_sent_sms"))
+        html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_failed_sms"))
         html +="""<td align="center">%d</td>"""%(LIST_QUEUE[idx].count())
+        html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_not_sent_sms"))
         html += """</tr>"""
-        conn.set(str(idx)+"_sent_sms",0)
-        conn.set(str(idx)+"_failed_sms",0)
-        conn.set(str(idx)+"_not_sent_sms",0)
+        conn.set("_"+str(idx)+"_sent_sms",0)
+        conn.set("_"+str(idx)+"_failed_sms",0)
+        conn.set("_"+str(idx)+"_not_sent_sms",0)
 
 
     for idx in range(LIST_PROSPERA):
         html += """<tr>"""
         html +="""<td align="center">%d</td>""" %(idx)
-        html +="""<td align="center">%s</td>"""%(conn.get(str(idx)+"_sent_sms_prospera"))
-        html +="""<td align="center">%s</td>""" %(conn.get(str(idx)+"_failed_sms_prospera"))
-        html +="""<td align="center">%s</td>""" %(conn.get(str(idx)+"_not_sent_sms_prospera"))
+        html +="""<td align="center">%s</td>"""% (conn.get("_"+str(idx)+"_sent_sms_prospera"))
+        html +="""<td align="center">%s</td>""" %(conn.get("_"+str(idx)+"_failed_sms_prospera"))
         html +="""<td align="center">%d</td>"""%(conn.llen(idx))
+        html +="""<td align="center">%s</td>""" %(conn.get("_"+str(idx)+"_not_sent_sms_prospera"))
         html += """</tr>"""
-        conn.set(str(idx)+"_sent_sms_prospera",0)
-        conn.set(str(idx)+"_failed_sms_prospera",0)
-        conn.set(str(idx)+"_not_sent_sms_prospera",0)
+        conn.set("_"+str(idx)+"_sent_sms_prospera",0)
+        conn.set("_"+str(idx)+"_failed_sms_prospera",0)
+        conn.set("_"+str(idx)+"_not_sent_sms_prospera",0)
 
 
 

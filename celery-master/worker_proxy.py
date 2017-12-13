@@ -16,6 +16,8 @@ redis = "redis://%s:%s/0" % (REDIS_HOST, REDIS_PORT)
 CELERY_BROKER_URL=redis
 CELERY_RESULT_BACKEND=redis
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Mexico_City'
+
 celery= Celery('tasks',
                 broker=CELERY_BROKER_URL,
                 backend=CELERY_RESULT_BACKEND)
