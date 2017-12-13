@@ -90,13 +90,15 @@ def send_sms_prospera(sm_item, idx):
                     conn.incr(str(idx)+"_sent_sms_prospera")
                 except gammu.GSMError:
                     # Show error if message not sent
-                    print ('Error, SMS not SENT en canal %d' %idx)
-                    print (payload)
                     if "counter" in data.keys():
                         data["counter"] = 1 + data["counter"]
                         try_on_queue = random.randint(0,LIST_PROSPERA-1)
                     else:
+                        print ('Error, Prospera SMS not SENT en canal %d' %idx)
+                        print (payload)
+
                         data["counter"] = 0
+                        data["first_attempt"] = idx
                         try_on_queue = idx
                     if data["counter"] <= 4: #Only try to resend three times
                         message_dump = json.dumps(data)
@@ -154,6 +156,7 @@ def main():
 
    #Init prospera
    load_prospera()
+   print ("Cargaron %d chips prospera"%(len(list_prospera)))
    for i in range(len(list_prospera)):
        create_prospera_thread(list_prospera[i], i)
 

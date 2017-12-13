@@ -10,7 +10,7 @@ from rpq.RpqQueue import RpqQueue
 
 ################# Constants ##################
 LIST_MODEM = 15
-LIST_PROSPERA=4
+LIST_PROSPERA=3
 ##########     Global variables     ##########
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
@@ -71,6 +71,15 @@ def send_ping_task():
         message = {"contact":"5521817435", "message": "ping desde %d" %(idx)}
         message_dump = json.dumps(message)
         LIST_QUEUE[idx].push(message_dump,100)
+    send_ping_prospera()
+
+
+def send_ping_prospera():
+    for idx in range(LIST_PROSPERA):
+        message = {"contact":"5521817435", "message": "ping desde %d" %(idx)}
+        message_dump = json.dumps(message)
+        conn.rpush(idx, message_dump)
+
 
 
 
@@ -97,6 +106,7 @@ def report_channels_task():
                 <th>Mensajes enviados</th>
                 <th>Mensajes fallidos</th>
                 <th>Mensajes encolados</th>
+                <th>Mensajes no enviados</th>
             </tr>
             <tr>
     """

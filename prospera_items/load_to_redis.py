@@ -16,5 +16,5 @@ def main():
     add_to_redis(grupo1,0)
     add_to_redis(grupo2,1)
     add_to_redis(grupo3,2)
-    add_to_redis(grupo4,3)
+    add_to_redis(grupo4,2)
 main()
