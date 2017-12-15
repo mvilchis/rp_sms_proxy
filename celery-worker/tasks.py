@@ -51,9 +51,12 @@ def get_last_msgs():
                 message = {"contact":contact_cel, "message": message}
                 message_dump = json.dumps(message)
                 conn.rpush(channel_queue, message_dump)
-                return
+                continue
             else:
-                channel_queue = ast.literal_eval(conn.get(contact_cel))["channel"]
+                if "channel" in ast.literal_eval(conn.get(contact_cel)):
+                    channel_queue = ast.literal_eval(conn.get(contact_cel))["channel"]
+                else:
+                   channel_queue = conn.get(contact_cel)
 
         message = {"contact":contact_cel, "message": message}
         message_dump = json.dumps(message)
