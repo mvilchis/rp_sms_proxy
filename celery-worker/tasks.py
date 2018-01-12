@@ -9,11 +9,14 @@ from email.mime.text import MIMEText
 from rpq.RpqQueue import RpqQueue
 
 ################# Constants ##################
-LIST_MODEM = 15
-LIST_PROSPERA=3
+LIST_MODEM = 4
+LIST_PROSPERA=4
 ##########     Global variables     ##########
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
+RP_URL_DASHBOARD= os.getenv('RP_URL_DASHBOARD', "")
+TOKEN_DASHBOARD = os.getenv('TOKEN_DASHBOARD', "")
+
 LIST_QUEUE = [RpqQueue(redis.StrictRedis(host=REDIS_HOST, port=6379, db=idx), 'simple_queue') for idx in range (1, 1+LIST_MODEM)]
 
 conn = redis.Redis(REDIS_HOST)
@@ -32,36 +35,56 @@ celery= Celery('tasks',
 EMAIL=os.getenv('EMAIL','')
 EMAIL_PASS=os.getenv('EMAIL_PASS','')
 
-@celery.task(name='tasks.request_to_rp')
-def get_last_msgs():
-    # Request all messages:
-    resp = requests.get(url=RP_MESSAGES)
-    data = json.loads(resp.text)
-
-    for item in data['results']:
+def send_messages(data):
+    for item in data:
         contact_cel = item['contact']
         message = item['message']
+        queue = int(item['queue']) if 'queue' in item else ''
         #### Redis ask to assign work
         if conn.get(contact_cel) is None:
             channel_queue = random.randint(0,LIST_MODEM-1)
             conn.set(contact_cel, {"channel":channel_queue, "is_prospera": False})
+            headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
+                        "Content-Type": "application/json"}
+            data = {"contact":contact_cel , "queue_number": channel_queue,"status":"N"}
+            requests.post(RP_URL_DASHBOARD+"add_contact/",data= json.dumps(data), headers = headers)
         else:
             if "is_prospera" in conn.get(contact_cel) and ast.literal_eval(conn.get(contact_cel))["is_prospera"]:
                 channel_queue = ast.literal_eval(conn.get(contact_cel))["channel"]
                 message = {"contact":contact_cel, "message": message}
                 message_dump = json.dumps(message)
-                conn.rpush(channel_queue, message_dump)
-                return
+                if not queue :
+                    conn.rpush(channel_queue, message_dump)
+                    continue
             else:
                 channel_queue = ast.literal_eval(conn.get(contact_cel))["channel"]
 
         message = {"contact":contact_cel, "message": message}
         message_dump = json.dumps(message)
-
-        if 'priority' in item:
-            LIST_QUEUE[int(channel_queue)].push(message_dump,100)
+        if not queue:
+            if 'priority' in item:
+                LIST_QUEUE[int(channel_queue)].push(message_dump,100)
+            else:
+                LIST_QUEUE[int(channel_queue)].push(message_dump,10)
         else:
-            LIST_QUEUE[int(channel_queue)].push(message_dump,10)
+            if queue < LIST_MODEM:
+                LIST_QUEUE[int(queue)].push(message_dump,10)
+            else:
+                conn.rpush(queue, message_dump)
+
+
+
+
+@celery.task(name='tasks.request_to_rp')
+def get_last_msgs():
+    # Request all messages:
+    resp = requests.get(url=RP_MESSAGES)
+    data = json.loads(resp.text)
+    send_messages(data['results'])
+
+    resp = requests.get(url = RP_URL_DASHBOARD+"add_message/R/")
+    data = json.loads(resp.text)
+    send_messages([{"message":item["message"],"queue":item["queue_number"],"contact":item["contact_number"]}for item in data])
 
 
 

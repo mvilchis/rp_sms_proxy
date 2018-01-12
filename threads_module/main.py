@@ -1,5 +1,6 @@
 from threading import Thread
 import os, redis, requests,time,json, random
+from datetime import datetime
 ##########      Priority queues   ############
 from rpq.RpqQueue import RpqQueue
 
@@ -7,13 +8,17 @@ from gammu_load import *
 
 
 REDIS_HOST = 'localhost'
-LIST_MODEM = 15
+LIST_MODEM = 4
 LIST_PROSPERA = 4
 LIST_QUEUE = [RpqQueue(redis.StrictRedis(host=REDIS_HOST, port=6379, db=idx), 'simple_queue') for idx in range (1, 1+LIST_MODEM)]
 
 conn = redis.Redis(REDIS_HOST)
 RP_URL= os.getenv('RP_URL', "")
 RP_URL_PROSPERA= os.getenv('RP_URL_PROSPERA', "")
+
+RP_URL_DASHBOARD= os.getenv('RP_URL_DASHBOARD', "")
+TOKEN_DASHBOARD = os.getenv('TOKEN_DASHBOARD', "")
+
 
 def sm_callback(sm, type, data):
     if not data.has_key('Number'):
@@ -38,6 +43,12 @@ def send_sms(sm_item, idx):
                 try:
                     sm_item.SendSMS(payload)
                     conn.incr("_"+str(idx)+"_sent_sms")
+
+                    headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
+                                "Content-Type": "application/json"}
+                    tmp_data = {"contact_number":data["contact"] , "message":data["message"], "last_attempt":datetime.now().strftime('%Y-%m-%d'),
+                            "status":"S", "queue_number":idx}
+                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(tmp_data), headers = headers)
                 except gammu.GSMError:
                     # Show error if message not sent
                     print ('Error, SMS not SENT en canal %d' %idx)
@@ -53,6 +64,11 @@ def send_sms(sm_item, idx):
                         LIST_QUEUE[try_on_queue].push(message_dump,100)
                     else:
                         conn.incr("_"+str(idx)+"_not_sent_sms")
+                    headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
+                                "Content-Type": "application/json"}
+                    tmp_data = {"contact_number":data["contact"] , "message":data["message"], "last_attempt":datetime.now().strftime('%Y-%m-%d'),
+                            "status":"F", "queue_number":idx}
+                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(tmp_data), headers = headers)
                     conn.incr("_"+str(idx)+"_failed_sms")
         else:
            try:
@@ -88,6 +104,11 @@ def send_sms_prospera(sm_item, idx):
                 try:
                     sm_item.SendSMS(payload)
                     conn.incr("_"+str(idx)+"_sent_sms_prospera")
+                    headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
+                                "Content-Type": "application/json"}
+                    tmp_data = {"contact_number":data["contact"] , "message":data["message"], "last_attempt":datetime.now().strftime('%Y-%m-%d'),
+                            "status":"S", "queue_number":idx}
+                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(tmp_data), headers = headers)
                 except gammu.GSMError:
                     # Show error if message not sent
                     if "counter" in data.keys():
@@ -106,6 +127,11 @@ def send_sms_prospera(sm_item, idx):
                     else:
                         conn.incr("_"+str(idx)+"_not_sent_sms_prospera")
                     conn.incr("_"+str(idx)+"_failed_sms_prospera")
+                    headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
+                                "Content-Type": "application/json"}
+                    tmp_data = {"contact_number":data["contact"] , "message":data["message"], "last_attempt":datetime.now().strftime('%Y-%m-%d'),
+                            "status":"F", "queue_number":idx}
+                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(tmp_data), headers = headers)
         else:
             try:
                 status = sm_item.GetBatteryCharge()
