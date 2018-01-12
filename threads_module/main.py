@@ -40,8 +40,6 @@ def send_sms(sm_item, idx):
                     conn.incr("_"+str(idx)+"_sent_sms")
                 except gammu.GSMError:
                     # Show error if message not sent
-                    print ('Error, SMS not SENT en canal %d' %idx)
-                    print (payload)
                     if "counter" in data.keys():
                         data["counter"] = 1 + data["counter"]
                         try_on_queue = random.randint(0,LIST_MODEM-1)
@@ -53,6 +51,9 @@ def send_sms(sm_item, idx):
                         LIST_QUEUE[try_on_queue].push(message_dump,100)
                     else:
                         conn.incr("_"+str(idx)+"_not_sent_sms")
+                        print ('Error, SMS not SENT en canal %d' %idx)
+                        print (data)
+
                     conn.incr("_"+str(idx)+"_failed_sms")
         else:
            try:
@@ -94,9 +95,7 @@ def send_sms_prospera(sm_item, idx):
                         data["counter"] = 1 + data["counter"]
                         try_on_queue = random.randint(0,LIST_PROSPERA-1)
                     else:
-                        print ('Error, Prospera SMS not SENT en canal %d' %idx)
-                        print (payload)
-
+                        
                         data["counter"] = 0
                         data["first_attempt"] = idx
                         try_on_queue = idx
@@ -105,6 +104,9 @@ def send_sms_prospera(sm_item, idx):
                         conn.rpush(try_on_queue,message_dump)
                     else:
                         conn.incr("_"+str(idx)+"_not_sent_sms_prospera")
+                        print ('Error, Prospera SMS not SENT en canal %d' %idx)
+                        print (data)
+
                     conn.incr("_"+str(idx)+"_failed_sms_prospera")
         else:
             try:
