@@ -5,19 +5,14 @@ from datetime import datetime
 from rpq.RpqQueue import RpqQueue
 
 from gammu_load import *
+##############     My constants     ##############
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir)
+from Constants  import *
 
-
-REDIS_HOST = 'localhost'
-LIST_MODEM = 4
-LIST_PROSPERA = 4
-LIST_QUEUE = [RpqQueue(redis.StrictRedis(host=REDIS_HOST, port=6379, db=idx), 'simple_queue') for idx in range (1, 1+LIST_MODEM)]
-
+############## Global variables ###############
 conn = redis.Redis(REDIS_HOST)
-RP_URL= os.getenv('RP_URL', "")
-RP_URL_PROSPERA= os.getenv('RP_URL_PROSPERA', "")
-
-RP_URL_DASHBOARD= os.getenv('RP_URL_DASHBOARD', "")
-TOKEN_DASHBOARD = os.getenv('TOKEN_DASHBOARD', "")
 
 
 def sm_callback(sm, type, data):
@@ -36,40 +31,49 @@ def send_sms(sm_item, idx):
     start = True
     while True:
         ######### Check if  have to send sms
-        if LIST_QUEUE[idx].count() > 0:
-            for i in range(LIST_QUEUE[idx].count()):
-                data = json.loads(LIST_QUEUE[idx].popOne())
+        if conn.llen(idx) > 0:
+            for i in range(conn.llen(idx)):
+                data = json.loads(conn.lpop(idx))
                 payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
                 try:
                     sm_item.SendSMS(payload)
+                    ###### Add message success to redis #####
                     conn.incr("_"+str(idx)+"_sent_sms")
-
+                    ######  Send info to dashboard   #####
                     headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
                                 "Content-Type": "application/json"}
-                    tmp_data = {"contact_number":data["contact"] , "message":data["message"], "last_attempt":datetime.now().strftime('%Y-%m-%d'),
-                            "status":"S", "queue_number":idx}
-                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(tmp_data), headers = headers)
+                    message_data = {"contact_number":data["contact"] ,
+                                    "message":data["message"],
+                                    "last_attempt":datetime.now().strftime('%Y-%m-%d'),
+                                    "status":"S", "queue_number":idx }
+                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
                 except gammu.GSMError:
-                    # Show error if message not sent
-                    print ('Error, SMS not SENT en canal %d' %idx)
-                    print (payload)
-                    if "counter" in data.keys():
-                        data["counter"] = 1 + data["counter"]
-                        try_on_queue = random.randint(0,LIST_MODEM-1)
-                    else:
-                        data["counter"] = 0
+                    try_on_queue = ''
+                    data["counter"] = 1 + data["counter"] if "counter" in data else 1
+                    if data["counter"] == 4: #### Only try in another queue in the last attempt
+                        new_idx = random.randint(0,LEN(MISALUD_SLOTS)-1)
+                        try_on_queue = MISALUD_SLOTS[new_idx]
+                    if data["counter"] ==3: #### Sleep 2 seconds to reconect with modem
+                        time.sleep(2)
+                    if not try_on_queue:
                         try_on_queue = idx
+
                     if data["counter"] <= 4: #Only try to resend three times
                         message_dump = json.dumps(data)
-                        LIST_QUEUE[try_on_queue].push(message_dump,100)
+                        conn.rpush(try_on_queue,message_dump)
                     else:
-                        conn.incr("_"+str(idx)+"_not_sent_sms")
-                    headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
-                                "Content-Type": "application/json"}
-                    tmp_data = {"contact_number":data["contact"] , "message":data["message"], "last_attempt":datetime.now().strftime('%Y-%m-%d'),
-                            "status":"F", "queue_number":idx}
-                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(tmp_data), headers = headers)
-                    conn.incr("_"+str(idx)+"_failed_sms")
+                        ###### Send info to dashboard, message failed
+                        headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
+                                    "Content-Type": "application/json"}
+                        message_data = {"contact_number":data["contact"] ,
+                                        "message":data["message"],
+                                        "last_attempt":datetime.now().strftime('%Y-%m-%d'),
+                                        "status":"F",
+                                        "queue_number":idx}
+                        requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                        print ('Error, SMS not SENT en canal %d' %idx)
+                        print (data)
+                        conn.incr("_"+str(idx)+"_failed_sms")
         else:
            try:
                 status = sm_item.GetBatteryCharge()
@@ -94,7 +98,6 @@ def create_thread(sm_item,idx):
 
 def send_sms_prospera(sm_item, idx):
     start = True
-
     while True:
         ######### Check if  have to send sms
         if conn.llen(idx) > 0:
@@ -103,35 +106,42 @@ def send_sms_prospera(sm_item, idx):
                 payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
                 try:
                     sm_item.SendSMS(payload)
+                    ###### Add message success to redis #####
                     conn.incr("_"+str(idx)+"_sent_sms_prospera")
+                    ######  Send info to dashboard   #####
                     headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
                                 "Content-Type": "application/json"}
-                    tmp_data = {"contact_number":data["contact"] , "message":data["message"], "last_attempt":datetime.now().strftime('%Y-%m-%d'),
-                            "status":"S", "queue_number":idx}
-                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(tmp_data), headers = headers)
+                    message_data = {"contact_number":data["contact"] ,
+                                    "message":data["message"],
+                                    "last_attempt":datetime.now().strftime('%Y-%m-%d'),
+                                    "status":"S", "queue_number":idx }
+                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
                 except gammu.GSMError:
-                    # Show error if message not sent
-                    if "counter" in data.keys():
-                        data["counter"] = 1 + data["counter"]
-                        try_on_queue = random.randint(0,LIST_PROSPERA-1)
-                    else:
-                        print ('Error, Prospera SMS not SENT en canal %d' %idx)
-                        print (payload)
-
-                        data["counter"] = 0
-                        data["first_attempt"] = idx
+                    try_on_queue = ''
+                    data["counter"] = 1 + data["counter"] if "counter" in data else 1
+                    if data["counter"] == 4: #### Only try in another queue in the last attempt
+                        new_idx = random.randint(0,LEN(PROSPERA_SLOTS)-1)
+                        try_on_queue = PROSPERA_SLOTS[new_idx]
+                    if data["counter"] ==3: #### Sleep 2 seconds to reconect with modem
+                        time.sleep(2)
+                    if not try_on_queue:
                         try_on_queue = idx
                     if data["counter"] <= 4: #Only try to resend three times
                         message_dump = json.dumps(data)
                         conn.rpush(try_on_queue,message_dump)
                     else:
-                        conn.incr("_"+str(idx)+"_not_sent_sms_prospera")
-                    conn.incr("_"+str(idx)+"_failed_sms_prospera")
-                    headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
-                                "Content-Type": "application/json"}
-                    tmp_data = {"contact_number":data["contact"] , "message":data["message"], "last_attempt":datetime.now().strftime('%Y-%m-%d'),
-                            "status":"F", "queue_number":idx}
-                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(tmp_data), headers = headers)
+                        ###### Send info to dashboard, message failed
+                        headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
+                                    "Content-Type": "application/json"}
+                        message_data = {"contact_number":data["contact"] ,
+                                        "message":data["message"],
+                                        "last_attempt":datetime.now().strftime('%Y-%m-%d'),
+                                        "status":"F",
+                                        "queue_number":idx}
+                        requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                        print ('Error, SMS not SENT PROSPERA en canal %d' %idx)
+                        print (data)
+                        conn.incr("_"+str(idx)+"_failed_sms_prospera")
         else:
             try:
                 status = sm_item.GetBatteryCharge()
@@ -177,15 +187,14 @@ def test():
 
 def main():
    load_all()
-   for i in range(len(list_modem)):
-        create_thread(list_modem[i], i)
+   for  item_modem,redis_idx in zip(list_modem,MISALUD_SLOTS):
+        create_thread(item_modem,redis_idx)
 
    #Init prospera
    load_prospera()
    print ("Cargaron %d chips prospera"%(len(list_prospera)))
-   for i in range(len(list_prospera)):
-       create_prospera_thread(list_prospera[i], i)
-
+   for  item_modem,redis_idx in zip(list_prospera,PROSPERA_SLOTS):
+       create_thread(item_modem,redis_idx)
 
 
 main()

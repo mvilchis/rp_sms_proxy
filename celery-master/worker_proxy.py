@@ -4,19 +4,9 @@ from celery.decorators import periodic_task
 from datetime import timedelta
 from celery.schedules import crontab
 
-
-env=os.environ
-##############     Read environment variables     ##############
-REDIS_HOST = os.getenv('REDIS_PORT_6379_TCP_ADDR', 'redis')
-REDIS_PORT = int(os.getenv('REDIS_PORT_6379_TCP_PORT',6379))
-redis = "redis://%s:%s/0" % (REDIS_HOST, REDIS_PORT)
-
-
-#############     Configure celery beat          ###############
-CELERY_BROKER_URL=redis
-CELERY_RESULT_BACKEND=redis
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'America/Mexico_City'
+#Import constants
+sys.path.insert(0, 'GUI')
+from 00_contants import *
 
 celery= Celery('tasks',
                 broker=CELERY_BROKER_URL,
@@ -26,6 +16,14 @@ celery.conf.CELERYBEAT_SCHEDULE = {
     'check-every-30-seconds': {
         'task': 'tasks.request_to_rp',
         'schedule': timedelta(seconds=30)
+    },
+    'check-every-120-seconds': {
+        'task': 'tasks.request_to_dashboard',
+        'schedule': timedelta(seconds=120)
+    },
+    'check-every-5-mins': {
+        'task': 'tasks.request_ping_dashboard',
+        'schedule': timedelta(minutes=5)
     },
     'send_mail_report_1': {
         'task': 'tasks.report_channels',

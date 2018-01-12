@@ -7,33 +7,17 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 ##########      Priority queues   ############
 from rpq.RpqQueue import RpqQueue
+##############     My constants     ##############
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir)
+from Constants  import *
 
-################# Constants ##################
-LIST_MODEM = 4
-LIST_PROSPERA=4
-##########     Global variables     ##########
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
-RP_URL_DASHBOARD= os.getenv('RP_URL_DASHBOARD', "")
-TOKEN_DASHBOARD = os.getenv('TOKEN_DASHBOARD', "")
-
-LIST_QUEUE = [RpqQueue(redis.StrictRedis(host=REDIS_HOST, port=6379, db=idx), 'simple_queue') for idx in range (1, 1+LIST_MODEM)]
 
 conn = redis.Redis(REDIS_HOST)
-
-redis_url = "redis://%s:%s/0" % (REDIS_HOST, REDIS_PORT)
-
-CELERY_BROKER_URL=redis_url
-CELERY_RESULT_BACKEND=redis_url
-RP_MESSAGES= os.getenv('RP_MESSAGES', "")
-
-
 celery= Celery('tasks',
                 broker=CELERY_BROKER_URL,
                 backend=CELERY_RESULT_BACKEND)
-
-EMAIL=os.getenv('EMAIL','')
-EMAIL_PASS=os.getenv('EMAIL_PASS','')
 
 def send_messages(data):
     for item in data:
@@ -42,37 +26,28 @@ def send_messages(data):
         queue = int(item['queue']) if 'queue' in item else ''
         #### Redis ask to assign work
         if conn.get(contact_cel) is None:
-            channel_queue = random.randint(0,LIST_MODEM-1)
-            conn.set(contact_cel, {"channel":channel_queue, "is_prospera": False})
+            new_idx = random.randint(0,LEN(MISALUD_SLOTS)-1)
+            channel_queue = MISALUD_SLOTS[new_idx]
+
+            conn.set(contact_cel, {"channel":channel_queue,
+                                    "is_prospera": False})
+            ############    Send info to dashboard
             headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
                         "Content-Type": "application/json"}
-            data = {"contact":contact_cel , "queue_number": channel_queue,"status":"N"}
-            requests.post(RP_URL_DASHBOARD+"add_contact/",data= json.dumps(data), headers = headers)
+            contact_data = {"contact":contact_cel ,
+                            "queue_number": channel_queue,
+                            "is_prospera": False
+                            }
+            requests.post(RP_URL_DASHBOARD+"add_contact/",data= json.dumps(contact_data), headers = headers)
         else:
-            if "is_prospera" in conn.get(contact_cel) and ast.literal_eval(conn.get(contact_cel))["is_prospera"]:
-                channel_queue = ast.literal_eval(conn.get(contact_cel))["channel"]
-                message = {"contact":contact_cel, "message": message}
-                message_dump = json.dumps(message)
-                if not queue :
-                    conn.rpush(channel_queue, message_dump)
-                    continue
+            if queue:
+                channel_queue = queue
             else:
-                channel_queue = ast.literal_eval(conn.get(contact_cel))["channel"]
-
-        message = {"contact":contact_cel, "message": message}
-        message_dump = json.dumps(message)
-        if not queue:
-            if 'priority' in item:
-                LIST_QUEUE[int(channel_queue)].push(message_dump,100)
-            else:
-                LIST_QUEUE[int(channel_queue)].push(message_dump,10)
-        else:
-            if queue < LIST_MODEM:
-                LIST_QUEUE[int(queue)].push(message_dump,10)
-            else:
-                conn.rpush(queue, message_dump)
-
-
+                contact_data = ast.literal_eval(conn.get(contact_cel))
+                channel_queue =contact_data["channel"]
+            message = {"contact":contact_cel, "message": message}
+            message_dump = json.dumps(message)
+            conn.rpush(channel_queue, message_dump)
 
 
 @celery.task(name='tasks.request_to_rp')
@@ -82,29 +57,35 @@ def get_last_msgs():
     data = json.loads(resp.text)
     send_messages(data['results'])
 
+
+@celery.task(name='tasks.request_to_dashboard')
+def get_resend_dashboard():
     resp = requests.get(url = RP_URL_DASHBOARD+"add_message/R/")
     data = json.loads(resp.text)
     send_messages([{"message":item["message"],"queue":item["queue_number"],"contact":item["contact_number"]}for item in data])
 
 
+@celery.task(name='tasks.request_ping_dashboard')
+def get_ping_dashboard():
+    resp = requests.get(url = RP_URL_DASHBOARD+"show_ping/")
+    data = json.loads(resp.text)
+    for number in data['numbers']:
+        send_ping_task(contact = number)
 
 @celery.task(name='tasks.send_ping')
-def send_ping_task():
-    for idx in range(LIST_MODEM):
-        message = {"contact":"5521817435", "message": "ping desde %d" %(idx)}
-        message_dump = json.dumps(message)
-        LIST_QUEUE[idx].push(message_dump,100)
-    send_ping_prospera()
-
-
-def send_ping_prospera():
-    for idx in range(LIST_PROSPERA):
-        message = {"contact":"5521817435", "message": "ping desde %d" %(idx)}
+def send_ping_task(contact = "5521817435"):
+    for idx in MISALUD_SLOTS:
+        message = {"contact":contact, "message": "ping desde %d" %(idx)}
         message_dump = json.dumps(message)
         conn.rpush(idx, message_dump)
+    send_ping_prospera(contact)
 
 
-
+def send_ping_prospera(contact):
+    for idx in PROSPERA_SLOTS:
+        message = {"contact":contact, "message": "ping desde %d" %(idx)}
+        message_dump = json.dumps(message)
+        conn.rpush(idx, message_dump)
 
 @celery.task(name='tasks.report_channels')
 def report_channels_task():
@@ -133,7 +114,7 @@ def report_channels_task():
             </tr>
             <tr>
     """
-    for idx in range(LIST_MODEM):
+    for idx in MISALUD_SLOTS:
         html += """<tr>"""
         html +="""<td align="center">%d</td>""" %(idx)
         html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_sent_sms"))
@@ -146,7 +127,7 @@ def report_channels_task():
         conn.set("_"+str(idx)+"_not_sent_sms",0)
 
 
-    for idx in range(LIST_PROSPERA):
+    for idx in PROSPERA_SLOTS:
         html += """<tr>"""
         html +="""<td align="center">%d</td>""" %(idx)
         html +="""<td align="center">%s</td>"""% (conn.get("_"+str(idx)+"_sent_sms_prospera"))
@@ -157,8 +138,6 @@ def report_channels_task():
         conn.set("_"+str(idx)+"_sent_sms_prospera",0)
         conn.set("_"+str(idx)+"_failed_sms_prospera",0)
         conn.set("_"+str(idx)+"_not_sent_sms_prospera",0)
-
-
 
     html += """"</body></html>"""
 

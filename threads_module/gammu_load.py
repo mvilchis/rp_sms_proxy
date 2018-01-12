@@ -1,8 +1,15 @@
 import gammu ,sys
+##############     My constants     ##############
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir)
+from Constants  import *
+
 
 list_modem = []
 list_prospera = []
 def load_gsm(list_modem, idx):
+    """ Load gsm slot to sistem """
     print("Entrando %d" % idx)
     item = gammu.StateMachine()
     print("Leera")
@@ -21,20 +28,10 @@ def load_gsm(list_modem, idx):
     print ("Salida")
 
 def load_all():
-    for i in range(0,4):
+    for i in MISALUD_SLOTS:
         load_gsm(list_modem, i)
-    for i in range(8,12):
-        load_gsm(list_modem, i)
-    for i in range(16,20):
-        load_gsm(list_modem, i)
-    load_gsm(list_modem, 24)
-    for i in range(26,28):
-        load_gsm(list_modem, i)
+
 
 def load_prospera():
-    #load_gsm(list_prospera, 31)
-    load_gsm(list_prospera, 30)
-    load_gsm(list_prospera, 29)
-    load_gsm(list_prospera, 28)
-
-
+    for i in PROSPERA_SLOTS:
+        load_gsm(list_prospera, i)
