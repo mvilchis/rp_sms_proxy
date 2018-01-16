@@ -1,5 +1,5 @@
 from threading import Thread
-import os, redis, requests,time,json, random
+import os, redis, requests,time,json, random, re
 from datetime import datetime
 ##########      Priority queues   ############
 from rpq.RpqQueue import RpqQueue
@@ -20,6 +20,10 @@ def sm_callback(sm, type, data):
         data = sm.GetSMS(data['Folder'], data['Location'])[0]
         #Now delete sms
         sm.DeleteSMS(Folder = data['Folder'], Location = data['Location'])
+    #Only send message if is diferent to short numbers
+    sender = data["Number"]
+    if sender == "telcel" or sender =="movistar" or len(str(sender)) <=5:
+        return
     payload={"backend":"Telcel",
                 "sender":data['Number'],
                 "message":data["Text"],
