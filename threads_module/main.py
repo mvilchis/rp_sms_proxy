@@ -213,7 +213,7 @@ def main():
    load_prospera()
    print ("Cargaron %d chips prospera"%(len(list_prospera)))
    for  item_modem,redis_idx in zip(list_prospera,PROSPERA_SLOTS):
-       create_thread(item_modem,redis_idx)
+       create_prospera_thread(item_modem,redis_idx)
 
 
 main()

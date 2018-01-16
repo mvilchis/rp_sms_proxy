@@ -26,7 +26,7 @@ def send_messages(data):
         queue = int(item['queue']) if 'queue' in item else ''
         #### Redis ask to assign work
         if conn.get(contact_cel) is None:
-            new_idx = random.randint(0,LEN(MISALUD_SLOTS)-1)
+            new_idx = random.randint(0,len(MISALUD_SLOTS)-1)
             channel_queue = MISALUD_SLOTS[new_idx]
 
             conn.set(contact_cel, {"channel":channel_queue,
