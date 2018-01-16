@@ -156,6 +156,9 @@ def send_sms_prospera(sm_item, idx):
 def sm_callback_prospera(sm, type, data):
     if not data.has_key('Number'):
         data = sm.GetSMS(data['Folder'], data['Location'])[0]
+        sender = data["Number"]
+        if sender == "telcel" or sender =="movistar" or len(str(sender)) <=5:
+            return
         payload={"backend":"Telcel",
                 "sender":data['Number'],
                 "message":data["Text"],
