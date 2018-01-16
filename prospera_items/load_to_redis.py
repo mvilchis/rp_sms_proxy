@@ -16,13 +16,14 @@ def add_to_redis(lista, queue):
     for item in lista:
 
         conn.set(item, {"channel":queue, "is_prospera": True})
-
-        headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
+        ### Only if is configurated
+        if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
+            headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
                     "Content-Type": "application/json"}
-        data = {"contact":item ,
+            data = {"contact":item ,
                 "queue_number": queue,
                 "is_prospera": True}
-        requests.post(RP_URL_DASHBOARD+"add_contact/",data= json.dumps(data), headers = headers)
+            requests.post(RP_URL_DASHBOARD+"add_contact/",data= json.dumps(data), headers = headers)
 
 def main():
     add_to_redis(grupo1,PROSPERA_SLOTS[0])

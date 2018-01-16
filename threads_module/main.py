@@ -50,7 +50,10 @@ def send_sms(sm_item, idx):
                                     "message":data["message"],
                                     "last_attempt":datetime.now().strftime('%Y-%m-%d'),
                                     "status":"S", "queue_number":idx }
-                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                    if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
+                        requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                    else:
+                        conn.rpush("add_message",message_data)
                 except gammu.GSMError:
                     try_on_queue = ''
                     data["counter"] = 1 + data["counter"] if "counter" in data else 1
@@ -74,7 +77,10 @@ def send_sms(sm_item, idx):
                                         "last_attempt":datetime.now().strftime('%Y-%m-%d'),
                                         "status":"F",
                                         "queue_number":idx}
-                        requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                        if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
+                            requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                        else: #Save to on localhost
+                            conn.rpush("add_message",json.dumps(message_data))
                         print ('Error, SMS not SENT en canal %d' %idx)
                         print (data)
                         conn.incr("_"+str(idx)+"_failed_sms")
@@ -119,7 +125,10 @@ def send_sms_prospera(sm_item, idx):
                                     "message":data["message"],
                                     "last_attempt":datetime.now().strftime('%Y-%m-%d'),
                                     "status":"S", "queue_number":idx }
-                    requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                    if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
+                        requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                    else: #Save to on localhost
+                        conn.rpush("add_message",json.dumps(message_data))
                 except gammu.GSMError:
                     try_on_queue = ''
                     data["counter"] = 1 + data["counter"] if "counter" in data else 1
@@ -142,7 +151,10 @@ def send_sms_prospera(sm_item, idx):
                                         "last_attempt":datetime.now().strftime('%Y-%m-%d'),
                                         "status":"F",
                                         "queue_number":idx}
-                        requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                        if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
+                            requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
+                        else: #Save to on localhost
+                            conn.rpush("add_message",json.dumps(message_data))
                         print ('Error, SMS not SENT PROSPERA en canal %d' %idx)
                         print (data)
                         conn.incr("_"+str(idx)+"_failed_sms_prospera")

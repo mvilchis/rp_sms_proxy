@@ -38,7 +38,10 @@ def send_messages(data):
                             "queue_number": channel_queue,
                             "is_prospera": False
                             }
-            requests.post(RP_URL_DASHBOARD+"add_contact/",data= json.dumps(contact_data), headers = headers)
+            if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
+                requests.post(RP_URL_DASHBOARD+"add_contact/",data= json.dumps(contact_data), headers = headers)
+            else: #Save to on localhost
+                conn.rpush("add_contact",contact_data)
         else:
             if queue:
                 channel_queue = queue
@@ -60,17 +63,19 @@ def get_last_msgs():
 
 @celery.task(name='tasks.request_to_dashboard')
 def get_resend_dashboard():
-    resp = requests.get(url = RP_URL_DASHBOARD+"add_message/R/")
-    data = json.loads(resp.text)
-    send_messages([{"message":item["message"],"queue":item["queue_number"],"contact":item["contact_number"]}for item in data])
+    if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
+        resp = requests.get(url = RP_URL_DASHBOARD+"add_message/R/")
+        data = json.loads(resp.text)
+        send_messages([{"message":item["message"],"queue":item["queue_number"],"contact":item["contact_number"]}for item in data])
 
 
 @celery.task(name='tasks.request_ping_dashboard')
 def get_ping_dashboard():
-    resp = requests.get(url = RP_URL_DASHBOARD+"show_ping/")
-    data = json.loads(resp.text)
-    for number in data['numbers']:
-        send_ping_task(contact = number)
+    if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
+        resp = requests.get(url = RP_URL_DASHBOARD+"show_ping/")
+        data = json.loads(resp.text)
+        for number in data['numbers']:
+            send_ping_task(contact = number)
 
 @celery.task(name='tasks.send_ping')
 def send_ping_task(contact = "5521817435"):
