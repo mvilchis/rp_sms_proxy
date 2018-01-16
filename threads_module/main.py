@@ -58,7 +58,7 @@ def send_sms(sm_item, idx):
                     try_on_queue = ''
                     data["counter"] = 1 + data["counter"] if "counter" in data else 1
                     if data["counter"] == 4: #### Only try in another queue in the last attempt
-                        new_idx = random.randint(0,LEN(MISALUD_SLOTS)-1)
+                        new_idx = random.randint(0,len(MISALUD_SLOTS)-1)
                         try_on_queue = MISALUD_SLOTS[new_idx]
                     if data["counter"] ==3: #### Sleep 2 seconds to reconect with modem
                         time.sleep(2)
@@ -133,7 +133,7 @@ def send_sms_prospera(sm_item, idx):
                     try_on_queue = ''
                     data["counter"] = 1 + data["counter"] if "counter" in data else 1
                     if data["counter"] == 4: #### Only try in another queue in the last attempt
-                        new_idx = random.randint(0,LEN(PROSPERA_SLOTS)-1)
+                        new_idx = random.randint(0,len(PROSPERA_SLOTS)-1)
                         try_on_queue = PROSPERA_SLOTS[new_idx]
                     if data["counter"] ==3: #### Sleep 2 seconds to reconect with modem
                         time.sleep(2)

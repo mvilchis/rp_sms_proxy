@@ -1,4 +1,4 @@
-import time, redis, os
+import time, redis, os,sys,inspect
 import ast, json, requests, random
 from celery import Celery
 ##########       Libraries mail    ###########
@@ -56,7 +56,7 @@ def send_messages(data):
 @celery.task(name='tasks.request_to_rp')
 def get_last_msgs():
     # Request all messages:
-    resp = requests.get(url=RP_MESSAGES)
+    resp = requests.get(url=RP_LAST_MESSAGES)
     data = json.loads(resp.text)
     send_messages(data['results'])
 

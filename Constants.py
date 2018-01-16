@@ -28,7 +28,3 @@ MISALUD_SLOTS = [8,9,10,11,16]
 
 
 
-
-########## Localhost ################
-RP_URL_DASHBOARD = "http://127.0.0.1:8000/"
-TOKEN_DASHBOARD= "c39f01ce09ce3fb0b28a79a00d42357ca38cfedc"
