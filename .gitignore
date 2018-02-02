@@ -5,3 +5,5 @@ grupo_3.py
 grupo_4.py
 grupo_5.py
 grupo_6.py
+celery-master/celerybeat.pid
+celery-master/celerybeat-schedule

@@ -23,8 +23,8 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Mexico_City'
 
 ##################        Manage queues       ###################
-PROSPERA_SLOTS = [0,1,2,3]
-MISALUD_SLOTS = [8,9,10,11,16]
+PROSPERA_SLOTS = [0,1,2,3,8,9,10]
+MISALUD_SLOTS = [11,16,17]
 
 
 

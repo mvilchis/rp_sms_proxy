@@ -112,6 +112,7 @@ def send_sms_prospera(sm_item, idx):
         ######### Check if  have to send sms
         if conn.llen(idx) > 0:
             for i in range(conn.llen(idx)):
+                time.sleep(30)
                 data = json.loads(conn.lpop(idx))
                 payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
                 try:
