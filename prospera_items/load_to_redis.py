@@ -1,8 +1,10 @@
 import sys, redis, os,inspect, requests,json
-from grupo1 import grupo1
-from grupo2 import grupo2
-from grupo3 import grupo3
-from grupo4 import grupo4
+from grupo_1 import grupo1
+from grupo_2 import grupo2
+from grupo_3 import grupo3
+from grupo_4 import grupo4
+from grupo_5 import grupo5
+from grupo_6 import grupo6
 
 ##############     My constants     ##############
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
