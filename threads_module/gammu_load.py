@@ -1,4 +1,4 @@
-import gammu ,sys
+import gammu ,sys,os,inspect
 ##############     My constants     ##############
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)

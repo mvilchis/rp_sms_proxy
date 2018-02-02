@@ -3,10 +3,13 @@ from celery import Celery
 from celery.decorators import periodic_task
 from datetime import timedelta
 from celery.schedules import crontab
+import inspect, sys
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir)
+from Constants  import *
 
-#Import constants
-sys.path.insert(0, 'GUI')
-from 00_contants import *
+
 
 celery= Celery('tasks',
                 broker=CELERY_BROKER_URL,

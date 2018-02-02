@@ -1,4 +1,4 @@
-import time, redis, os
+import time, redis, os,sys,inspect
 import ast, json, requests, random
 from celery import Celery
 ##########       Libraries mail    ###########
@@ -26,7 +26,7 @@ def send_messages(data):
         queue = int(item['queue']) if 'queue' in item else ''
         #### Redis ask to assign work
         if conn.get(contact_cel) is None:
-            new_idx = random.randint(0,LEN(MISALUD_SLOTS)-1)
+            new_idx = random.randint(0,len(MISALUD_SLOTS)-1)
             channel_queue = MISALUD_SLOTS[new_idx]
 
             conn.set(contact_cel, {"channel":channel_queue,
@@ -56,7 +56,7 @@ def send_messages(data):
 @celery.task(name='tasks.request_to_rp')
 def get_last_msgs():
     # Request all messages:
-    resp = requests.get(url=RP_MESSAGES)
+    resp = requests.get(url=RP_LAST_MESSAGES)
     data = json.loads(resp.text)
     send_messages(data['results'])
 
@@ -124,7 +124,7 @@ def report_channels_task():
         html +="""<td align="center">%d</td>""" %(idx)
         html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_sent_sms"))
         html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_failed_sms"))
-        html +="""<td align="center">%d</td>"""%(LIST_QUEUE[idx].count())
+        html +="""<td align="center">%d</td>"""%(conn.llen(idx))
         html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_not_sent_sms"))
         html += """</tr>"""
         conn.set("_"+str(idx)+"_sent_sms",0)
