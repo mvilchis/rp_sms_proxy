@@ -18,7 +18,7 @@ celery= Celery('tasks',
 celery.conf.CELERYBEAT_SCHEDULE = {
     'check-every-30-seconds': {
         'task': 'tasks.request_to_rp',
-        'schedule': timedelta(seconds=30)
+        'schedule': timedelta(seconds=10)
     },
     'check-every-120-seconds': {
         'task': 'tasks.request_to_dashboard',
@@ -30,11 +30,11 @@ celery.conf.CELERYBEAT_SCHEDULE = {
     },
     'send_mail_report_1': {
         'task': 'tasks.report_channels',
-        'schedule': crontab(hour=7, minute=30)
+        'schedule': crontab(hour00, minute=30)
     },
     'send_mail_report_2': {
         'task': 'tasks.report_channels',
-        'schedule': crontab(hour=14, minute=30)
+        'schedule': crontab(hour=15, minute=30)
     },
     'send_mail_report_3': {
         'task': 'tasks.report_channels',
