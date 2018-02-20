@@ -8,6 +8,7 @@ from Constants  import *
 
 list_modem = []
 list_prospera = []
+list_inclusion= []
 def load_gsm(list_modem, idx):
     """ Load gsm slot to sistem """
     print("Entrando %d" % idx)
@@ -35,3 +36,7 @@ def load_all():
 def load_prospera():
     for i in PROSPERA_SLOTS:
         load_gsm(list_prospera, i)
+
+def load_inclusion():
+    for i in INCLUSION_SLOTS:
+        load_gsm(list_inclusion, i)
