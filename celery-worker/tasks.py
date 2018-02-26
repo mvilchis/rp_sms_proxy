@@ -86,15 +86,22 @@ def get_ping_dashboard():
 @celery.task(name='tasks.send_ping')
 def send_ping_task(contact = "5521817435"):
     for idx in MISALUD_SLOTS:
-        message = {"contact":contact, "message": "ping desde %d" %(idx)}
+        message = {"contact":contact, "message": "ping misalud desde %d" %(idx)}
         message_dump = json.dumps(message)
         conn.rpush(idx, message_dump)
     send_ping_prospera(contact)
+    send_ping_inclusion(contact)
 
 
 def send_ping_prospera(contact):
     for idx in PROSPERA_SLOTS:
-        message = {"contact":contact, "message": "ping desde %d" %(idx)}
+        message = {"contact":contact, "message": "ping prospera desde %d" %(idx)}
+        message_dump = json.dumps(message)
+        conn.rpush(idx, message_dump)
+
+def send_ping_inclusion(contact):
+    for idx in INCLUSION_SLOTS:
+        message = {"contact":contact, "message": "ping inclusion desde %d" %(idx)}
         message_dump = json.dumps(message)
         conn.rpush(idx, message_dump)
 
