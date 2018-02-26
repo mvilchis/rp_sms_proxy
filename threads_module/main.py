@@ -30,7 +30,7 @@ def sm_callback(sm, type, data):
                 "message":data["Text"],
                 "ts":"1",
                 "id":"758af0a175f8a86"}
-    r = requests.get(RP_URL, params = payload)
+    r = requests.get(MISALUD_MAPPING["misalud_11"]["handler"], params = payload)
 
 # Prospera callback
 def sm_callback_prospera(sm, type, data):
@@ -64,7 +64,7 @@ def sm_callback_inclusion(sm, type, data):
                 "message":data["Text"],
                 "ts":"1",
                 "id":"758af0a175f8a86"}
-    r = requests.get(RP_URL_INCLUSION, params = payload)
+    r = requests.get(INCLUSION_MAPPING["inclusion_4"]["handler"], params = payload)
 
 def send_sms(sm_item, idx):
     while True:
@@ -72,6 +72,8 @@ def send_sms(sm_item, idx):
         if conn.llen(idx) > 0:
             for i in range(conn.llen(idx)):
                 data = json.loads(conn.lpop(idx))
+                if idx in PROSPERA_SLOTS or idx in INCLUSION_SLOTS:
+                    time.sleep(60)
                 payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
                 try:
                     sm_item.SendSMS(payload)
@@ -124,7 +126,7 @@ def send_sms(sm_item, idx):
 
 
 def create_thread(sm_item,idx, function_callback):
-    sm_item.SetIncomingCallback(sm_callback)
+    sm_item.SetIncomingCallback(function_callback)
     try:
         sm_item.SetIncomingSMS()
     except gammu.ERR_NOTSUPPORTED:

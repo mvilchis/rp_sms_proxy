@@ -25,8 +25,9 @@ def send_messages(data):
         message = item['message']
         org = item['org']
         queue = int(item['queue']) if 'queue' in item else ''
+        modem = item['modem']
         #### Redis ask to assign work
-        if conn.get(contact_cel) is None:
+        if not modem:
             if org == MISALUD_MODEM:
                 new_idx = random.randint(0,len(MISALUD_SLOTS)-1)
                 channel_queue = MISALUD_SLOTS[new_idx]
@@ -49,14 +50,20 @@ def send_messages(data):
                 conn.set(contact_cel, {"channel":channel_queue,
                                     "is_prospera": False})
         else:
-            if queue:
-                channel_queue = queue
-            else:
-                contact_data = ast.literal_eval(conn.get(contact_cel))
-                channel_queue =contact_data["channel"]
             message = {"contact":contact_cel, "message": message}
             message_dump = json.dumps(message)
-            conn.rpush(channel_queue, message_dump)
+            queue = ""
+            if modem in INCLUSION_MAPPING:
+                queue = INCLUSION_MAPPING[modem]["number"]
+            elif modem in MISALUD_MAPPING:
+                queue = MISALUD_MAPPING[modem]["number"]
+            elif modem in PROSPERA_MAPPING:
+                queue = PROSPERA_MAPPING[modem]["number"]
+            else:
+                print ("Sin modem")
+                print (data)
+            if queue:
+                conn.rpush(queue, message_dump)
 
 
 @celery.task(name='tasks.request_to_rp')
