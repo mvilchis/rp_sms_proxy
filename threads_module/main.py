@@ -10,27 +10,10 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
 from Constants  import *
-
+from callbacks import *
 ############## Global variables ###############
 conn = redis.Redis(REDIS_HOST)
 
-##################### Callback functions ########################
-#Misalud callback
-def sm_callback(sm, type, data):
-    if not data.has_key('Number'):
-        data = sm.GetSMS(data['Folder'], data['Location'])[0]
-        #Now delete sms
-        sm.DeleteSMS(Folder = data['Folder'], Location = data['Location'])
-    #Only send message if is diferent to short numbers
-    sender = data["Number"]
-    if sender == "telcel" or sender =="movistar" or len(str(sender)) <=6:
-        return
-    payload={"backend":"Telcel",
-                "sender":data['Number'],
-                "message":data["Text"],
-                "ts":"1",
-                "id":"758af0a175f8a86"}
-    r = requests.get(MISALUD_MAPPING["misalud_11"]["handler"], params = payload)
 
 # Prospera callback
 def sm_callback_prospera(sm, type, data):
@@ -140,8 +123,8 @@ def create_thread(sm_item,idx, function_callback):
 
 def main():
    load_all()
-   for  item_modem,redis_idx in zip(list_modem,MISALUD_SLOTS):
-        create_thread(item_modem,redis_idx, sm_callback)
+   for  item_modem,redis_idx, callback_f in zip(list_modem,MISALUD_SLOTS, MISALUD_CALLBACK):
+        create_thread(item_modem,redis_idx, callback_f)
 
    #Init prospera
    load_prospera()
