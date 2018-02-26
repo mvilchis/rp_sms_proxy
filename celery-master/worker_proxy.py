@@ -30,7 +30,7 @@ celery.conf.CELERYBEAT_SCHEDULE = {
     },
     'send_mail_report_1': {
         'task': 'tasks.report_channels',
-        'schedule': crontab(hour00, minute=30)
+        'schedule': crontab(hour=0, minute=30)
     },
     'send_mail_report_2': {
         'task': 'tasks.report_channels',
@@ -42,6 +42,6 @@ celery.conf.CELERYBEAT_SCHEDULE = {
     },
     'ping_sms': {
         'task': 'tasks.send_ping',
-        'schedule': crontab(hour=9, minute=0)
+        'schedule': crontab(hour=17, minute=30)
     },
 }
