@@ -147,10 +147,10 @@ def main():
    for  item_modem,redis_idx in zip(list_prospera,PROSPERA_SLOTS):
        create_thread(item_modem,redis_idx, sm_callback_prospera)
 
-    #Init inclusion
-    load_inclusion()
-    for  item_modem,redis_idx in zip(list_inclusion,INCLUSION_SLOTS):
-        create_thread(item_modem,redis_idx, sm_callback_inclusion)
+   #Init inclusion
+   load_inclusion()
+   for  item_modem,redis_idx in zip(list_inclusion,INCLUSION_SLOTS):
+       create_thread(item_modem,redis_idx, sm_callback_inclusion)
 
 main()
 #test()
