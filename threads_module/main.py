@@ -32,23 +32,6 @@ def sm_callback_prospera(sm, type, data):
         print data
 
 
-#Inclusion callback
-def sm_callback_inclusion(sm, type, data):
-    if not data.has_key('Number'):
-        data = sm.GetSMS(data['Folder'], data['Location'])[0]
-        #Now delete sms
-        sm.DeleteSMS(Folder = data['Folder'], Location = data['Location'])
-    #Only send message if is diferent to short numbers
-    sender = data["Number"]
-    if sender == "telcel" or sender =="movistar" or len(str(sender)) <=6:
-        return
-    payload={"backend":"Telcel",
-                "sender":data['Number'],
-                "message":data["Text"],
-                "ts":"1",
-                "id":"758af0a175f8a86"}
-    r = requests.get(INCLUSION_MAPPING["inclusion_4"]["handler"], params = payload)
-
 def send_sms(sm_item, idx):
     while True:
         ######### Check if  have to send sms
@@ -134,8 +117,8 @@ def main():
 
    #Init inclusion
    load_inclusion()
-   for  item_modem,redis_idx in zip(list_inclusion,INCLUSION_SLOTS):
-       create_thread(item_modem,redis_idx, sm_callback_inclusion)
+   for  item_modem,redis_idx, callback_f in zip(list_inclusion,INCLUSION_SLOTS, INCLUSION_CALLBACK):
+       create_thread(item_modem,redis_idx, callback_f)
 
 main()
 #test()
