@@ -3,10 +3,9 @@ import ast, json, requests, random
 from celery import Celery
 ##########       Libraries mail    ###########
 import smtplib
+import mimetypes
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-##########      Priority queues   ############
-from rpq.RpqQueue import RpqQueue
 ##############     My constants     ##############
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -101,6 +100,85 @@ def send_ping_inclusion(contact):
         message = {"contact":contact, "message": "ping inclusion desde %d" %(idx)}
         message_dump = json.dumps(message)
         conn.rpush(idx, message_dump)
+
+
+@celery.task(name='tasks.report_inclusion')
+def report_inclusion_task():
+    ### Create csv
+    failed_msgs = ""
+    send_msgs = ""
+    for idx in INCLUSION_SLOTS:
+        for i in range(conn.llen("failed_message_"+str(idx))):
+            data = json.loads(conn.lpop("failed_message_"+str(idx)))
+            failed_msgs+= data["contact"]+","+data["message"]+"\n"
+        for i in range(conn.llen("sent_message_"+str(idx))):
+            data = json.loads(conn.lpop("sent_message_"+str(idx)))
+            send_msgs+= data["contact"]+","+data["message"]+"\n"
+    failed_csv = open('failed_msgs.csv', 'w')
+    failed_csv.write(failed_msgs)
+    failed_csv.close()
+    send_csv = open('sent_msgs.csv', 'w')
+    send_csv.write(send_msgs)
+    send_csv.close()
+    for you in ["miguel.vilchis@datos.mx","mvilchis@ciencias.unam.mx"]:
+        me = EMAIL
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.ehlo()
+        server.login(EMAIL, EMAIL_PASS)
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = "Reporte GSM modem"
+        msg['From'] = EMAIL
+        msg['To'] = you
+        text = "Va el reporte del modem gms"
+
+        html = """\
+        <html>
+            <head></head>
+            <body>
+                <table style="width:80%;" >
+                <tr>
+                    <th>Canal</th>
+                    <th>Mensajes enviados</th>
+                    <th>Mensajes fallidos</th>
+                    <th>Mensajes encolados</th>
+                    <th>Mensajes no enviados</th>
+                </tr>
+                <tr>
+        """
+        for idx in INCLUSION_SLOTS:
+            html += """<tr>"""
+            html +="""<td align="center">%d</td>""" %(idx)
+            html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_sent_sms"))
+            html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_failed_sms"))
+            html +="""<td align="center">%d</td>"""%(conn.llen(idx))
+            html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_not_sent_sms"))
+            html += """</tr>"""
+            conn.set("_"+str(idx)+"_sent_sms",0)
+            conn.set("_"+str(idx)+"_failed_sms",0)
+            conn.set("_"+str(idx)+"_not_sent_sms",0)
+
+        html += """</body></html>"""
+
+        part1 = MIMEText(text, 'plain')
+        part2 = MIMEText(html, 'html')
+        msg.attach(part1)
+        msg.attach(part2)
+        ##################  File #######################
+        for fileToSend in ["sent_msgs.csv", "failed_msgs.csv"]:
+            ctype, encoding = mimetypes.guess_type(fileToSend)
+            if ctype is None or encoding is not None:
+                ctype = "application/octet-stream"
+            maintype, subtype = ctype.split("/", 1)
+            fp = open(fileToSend)
+            attachment = MIMEText(fp.read(), _subtype=subtype)
+            fp.close()
+            attachment.add_header("Content-Disposition", "attachment", filename=fileToSend)
+            msg.attach(attachment)
+        server.sendmail(me, you, msg.as_string())
+        server.quit()
+
+
 
 @celery.task(name='tasks.report_channels')
 def report_channels_task():
