@@ -15,23 +15,6 @@ from callbacks import *
 conn = redis.Redis(REDIS_HOST)
 
 
-# Prospera callback
-def sm_callback_prospera(sm, type, data):
-    if not data.has_key('Number'):
-        data = sm.GetSMS(data['Folder'], data['Location'])[0]
-        sender = data["Number"]
-        if sender == "telcel" or sender =="movistar" or len(str(sender)) <=6:
-            return
-        payload={"backend":"Telcel",
-                "sender":data['Number'],
-                "message":data["Text"],
-                "ts":"1",
-                "id":"758af0a175f8a86"}
-        r = requests.get(RP_URL_PROSPERA, params = payload)
-    else:
-        print data
-
-
 def send_sms(sm_item, idx):
     while True:
         ######### Check if  have to send sms
@@ -91,8 +74,8 @@ def main():
    #Init prospera
    load_prospera()
    print ("Cargaron %d chips prospera"%(len(list_prospera)))
-   for  item_modem,redis_idx in zip(list_prospera,PROSPERA_SLOTS):
-       create_thread(item_modem,redis_idx, sm_callback_prospera)
+   for  item_modem,redis_idx,callback_f in zip(list_prospera,PROSPERA_SLOTS,PROSPERA_CALLBACK):
+       create_thread(item_modem,redis_idx, sm_callback_f)
 
    #Init inclusion
    load_inclusion()
