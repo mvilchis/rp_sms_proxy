@@ -120,7 +120,7 @@ def report_inclusion_task():
     send_csv = open('sent_msgs.csv', 'w')
     send_csv.write(send_msgs)
     send_csv.close()
-    for you in ["miguel.vilchis@datos.mx","mvilchis@ciencias.unam.mx"]:
+    for you in ["miguel.vilchis@datos.mx","alexis.cherem@datos.mx"]:
         me = EMAIL
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()

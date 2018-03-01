@@ -45,7 +45,7 @@ def send_sms(sm_item, idx):
                     sm_item.SendSMS(payload)
                     ###### Add message success to redis #####
                     conn.incr("_"+str(idx)+"_sent_sms")
-                    conn.rpush("sent_message_"+str(idx),message_data)
+                    conn.rpush("sent_message_"+str(idx),json.dumps(data))
                 except gammu.GSMError:
                     try_on_queue = ''
                     data["counter"] = 1 + data["counter"] if "counter" in data else 1
@@ -58,7 +58,7 @@ def send_sms(sm_item, idx):
                         message_dump = json.dumps(data)
                         conn.rpush(try_on_queue,message_dump)
                     else:
-                        conn.rpush("failed_message_"+str(idx),json.dumps(message_data))
+                        conn.rpush("failed_message_"+str(idx),json.dumps(data))
                         print ('Error, SMS not SENT en canal %d' %idx)
                         print (data)
                         conn.incr("_"+str(idx)+"_failed_sms")

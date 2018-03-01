@@ -30,7 +30,7 @@ def sm_callback(sm, type, data):
             pass
     #Only send message if is diferent to short numbers
     sender = data["Number"]
-    if not str.isdigit(sender) or len(str(sender)) <=6 or len(str(sender)) >=11:
+    if not str.isdigit(str(sender)) or len(str(sender)) <=6 or len(str(sender)) >=11:
         return ""
     payload={"backend":"Telcel",
                 "sender":data['Number'],
