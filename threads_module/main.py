@@ -45,17 +45,7 @@ def send_sms(sm_item, idx):
                     sm_item.SendSMS(payload)
                     ###### Add message success to redis #####
                     conn.incr("_"+str(idx)+"_sent_sms")
-                    ######  Send info to dashboard   #####
-                    headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
-                                "Content-Type": "application/json"}
-                    message_data = {"contact_number":data["contact"] ,
-                                    "message":data["message"],
-                                    "last_attempt":datetime.now().strftime('%Y-%m-%d'),
-                                    "status":"S", "queue_number":idx }
-                    if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
-                        requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
-                    else:
-                        conn.rpush("add_message",message_data)
+                    conn.rpush("sent_message_"+str(idx),message_data)
                 except gammu.GSMError:
                     try_on_queue = ''
                     data["counter"] = 1 + data["counter"] if "counter" in data else 1
@@ -68,18 +58,7 @@ def send_sms(sm_item, idx):
                         message_dump = json.dumps(data)
                         conn.rpush(try_on_queue,message_dump)
                     else:
-                        ###### Send info to dashboard, message failed
-                        headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
-                                    "Content-Type": "application/json"}
-                        message_data = {"contact_number":data["contact"] ,
-                                        "message":data["message"],
-                                        "last_attempt":datetime.now().strftime('%Y-%m-%d'),
-                                        "status":"F",
-                                        "queue_number":idx}
-                        if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
-                            requests.post(RP_URL_DASHBOARD+"add_message/",data= json.dumps(message_data), headers = headers)
-                        else: #Save to on localhost
-                            conn.rpush("add_message",json.dumps(message_data))
+                        conn.rpush("failed_message_"+str(idx),json.dumps(message_data))
                         print ('Error, SMS not SENT en canal %d' %idx)
                         print (data)
                         conn.incr("_"+str(idx)+"_failed_sms")
