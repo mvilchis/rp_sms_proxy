@@ -33,22 +33,12 @@ def send_messages(data):
                 channel_queue = MISALUD_SLOTS[new_idx]
                 conn.set(contact_cel, {"channel":channel_queue,
                                     "is_prospera": False})
-                ############    Send info to dashboard
-                headers = {"Authorization": "Token "+TOKEN_DASHBOARD,
-                        "Content-Type": "application/json"}
-                contact_data = {"contact":contact_cel ,
-                            "queue_number": channel_queue,
-                            "is_prospera": False
-                            }
-                if TOKEN_DASHBOARD and RP_URL_DASHBOARD:
-                    requests.post(RP_URL_DASHBOARD+"add_contact/",data= json.dumps(contact_data), headers = headers)
-                else: #Save to on localhost
-                    conn.rpush("add_contact",contact_data)
             else:
                 new_idx = random.randint(0,len(INCLUSION_SLOTS)-1)
                 channel_queue = INCLUSION_SLOTS[new_idx]
                 conn.set(contact_cel, {"channel":channel_queue,
                                     "is_prospera": False})
+
         else:
             message = {"contact":contact_cel, "message": message}
             message_dump = json.dumps(message)
@@ -155,28 +145,28 @@ def report_channels_task():
     for idx in PROSPERA_SLOTS:
         html += """<tr>"""
         html +="""<td align="center">%d</td>""" %(idx)
-        html +="""<td align="center">%s</td>"""% (conn.get("_"+str(idx)+"_sent_sms_prospera"))
-        html +="""<td align="center">%s</td>""" %(conn.get("_"+str(idx)+"_failed_sms_prospera"))
+        html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_sent_sms"))
+        html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_failed_sms"))
         html +="""<td align="center">%d</td>"""%(conn.llen(idx))
-        html +="""<td align="center">%s</td>""" %(conn.get("_"+str(idx)+"_not_sent_sms_prospera"))
+        html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_not_sent_sms"))
         html += """</tr>"""
-        conn.set("_"+str(idx)+"_sent_sms_prospera",0)
-        conn.set("_"+str(idx)+"_failed_sms_prospera",0)
-        conn.set("_"+str(idx)+"_not_sent_sms_prospera",0)
+        conn.set("_"+str(idx)+"_sent_sms",0)
+        conn.set("_"+str(idx)+"_failed_sms",0)
+        conn.set("_"+str(idx)+"_not_sent_sms",0)
 
     for idx in INCLUSION_SLOTS:
         html += """<tr>"""
         html +="""<td align="center">%d</td>""" %(idx)
-        html +="""<td align="center">%s</td>"""% (conn.get("_"+str(idx)+"_sent_sms_prospera"))
-        html +="""<td align="center">%s</td>""" %(conn.get("_"+str(idx)+"_failed_sms_prospera"))
+        html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_sent_sms"))
+        html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_failed_sms"))
         html +="""<td align="center">%d</td>"""%(conn.llen(idx))
-        html +="""<td align="center">%s</td>""" %(conn.get("_"+str(idx)+"_not_sent_sms_prospera"))
+        html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_not_sent_sms"))
         html += """</tr>"""
-        conn.set("_"+str(idx)+"_sent_sms_prospera",0)
-        conn.set("_"+str(idx)+"_failed_sms_prospera",0)
-        conn.set("_"+str(idx)+"_not_sent_sms_prospera",0)
+        conn.set("_"+str(idx)+"_sent_sms",0)
+        conn.set("_"+str(idx)+"_failed_sms",0)
+        conn.set("_"+str(idx)+"_not_sent_sms",0)
 
-    html += """"</body></html>"""
+    html += """</body></html>"""
 
     part1 = MIMEText(text, 'plain')
     part2 = MIMEText(html, 'html')
