@@ -39,7 +39,7 @@ def send_sms(sm_item, idx):
             for i in range(conn.llen(idx)):
                 data = json.loads(conn.lpop(idx))
                 if idx in PROSPERA_SLOTS or idx in INCLUSION_SLOTS:
-                    time.sleep(60)
+                    time.sleep(20)
                 payload = {"Text": data["message"],"SMSC": {"Location":1},"Number": data["contact"]}
                 try:
                     sm_item.SendSMS(payload)

@@ -5,7 +5,7 @@ RP_URL_DASHBOARD= os.getenv('RP_URL_DASHBOARD', "")
 TOKEN_DASHBOARD = os.getenv('TOKEN_DASHBOARD', "")
 RP_URL= os.getenv('RP_URL', "")
 RP_URL_PROSPERA= os.getenv('RP_URL_PROSPERA', "")
-RP_URL_INCLUSION=os.getenv('RP_URL_INCLUSION', "")
+RP_URL_INCLUSION=os.getenv('RP_URL_INCLUSION', "https://rapidpro.datos.gob.mx/c/kn/25c52773-2f16-481f-9572-3bb01df30dac/receive")
 RP_LAST_MESSAGES= os.getenv('RP_LAST_MESSAGES', "")
 
 ####################      Mail environment      #################
@@ -31,4 +31,4 @@ INCLUSION_MODEM="inclusion"
 ##################        Manage queues       ###################
 PROSPERA_SLOTS = [0,1,2,3,8,9,10]
 MISALUD_SLOTS = [11,16,17]
-INCLUSION_SLOTS =[]
+INCLUSION_SLOTS =[4,5,6,7,12,13,14,15,20,21]
