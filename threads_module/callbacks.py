@@ -30,8 +30,6 @@ def sm_callback(sm, type, data):
             pass
     #Only send message if is diferent to short numbers
     sender = data["Number"]
-    if not str.isdigit(str(sender)) or len(str(sender)) <=6 or len(str(sender)) >=11:
-        return ""
     payload={"backend":"Telcel",
                 "sender":data['Number'],
                 "message":data["Text"],
@@ -150,7 +148,8 @@ def callback_inclusion_21(sm, type, data):
     if payload:
         r = requests.get(INCLUSION_MAPPING["inclusion_21"]["handler"], params = payload)
 
-
 MISALUD_CALLBACK= [callback_misalud_11, callback_misalud_16, callback_misalud_17]
 PROSPERA_CALLBACK= [callback_prospera_0, callback_prospera_1, callback_prospera_2, callback_prospera_3, callback_prospera_8, callback_prospera_9, callback_prospera_10]
-INCLUSION_CALLBACK= [callback_inclusion_4, callback_inclusion_5, callback_inclusion_6, callback_inclusion_7, callback_inclusion_12, callback_inclusion_13, callback_inclusion_14, callback_inclusion_15, callback_inclusion_20, callback_inclusion_21]
+INCLUSION_CALLBACK= [callback_inclusion_4, callback_inclusion_5, callback_inclusion_6, callback_inclusion_7, callback_inclusion_12, callback_inclusion_13, 
+                     callback_inclusion_14, callback_inclusion_15, 
+callback_inclusion_20, callback_inclusion_21]
