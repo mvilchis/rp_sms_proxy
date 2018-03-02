@@ -67,6 +67,12 @@ def create_thread(sm_item,idx, function_callback):
 
 
 def main():
+   #Init inclusion
+   load_inclusion()
+   for  item_modem,redis_idx, callback_f in zip(list_inclusion,INCLUSION_SLOTS, INCLUSION_CALLBACK):
+       create_thread(item_modem,redis_idx, callback_f)
+
+
    load_all()
    for  item_modem,redis_idx, callback_f in zip(list_modem,MISALUD_SLOTS, MISALUD_CALLBACK):
         create_thread(item_modem,redis_idx, callback_f)
@@ -75,12 +81,9 @@ def main():
    load_prospera()
    print ("Cargaron %d chips prospera"%(len(list_prospera)))
    for  item_modem,redis_idx,callback_f in zip(list_prospera,PROSPERA_SLOTS,PROSPERA_CALLBACK):
-       create_thread(item_modem,redis_idx, sm_callback_f)
-
-   #Init inclusion
-   load_inclusion()
-   for  item_modem,redis_idx, callback_f in zip(list_inclusion,INCLUSION_SLOTS, INCLUSION_CALLBACK):
        create_thread(item_modem,redis_idx, callback_f)
+
+
 
 main()
 #test()
