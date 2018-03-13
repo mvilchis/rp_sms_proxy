@@ -27,17 +27,7 @@ def send_messages(data):
         modem = item['modem']
         #### Redis ask to assign work
         if not modem:
-            if org == MISALUD_MODEM:
-                new_idx = random.randint(0,len(MISALUD_SLOTS)-1)
-                channel_queue = MISALUD_SLOTS[new_idx]
-                conn.set(contact_cel, {"channel":channel_queue,
-                                    "is_prospera": False})
-            else:
-                new_idx = random.randint(0,len(INCLUSION_SLOTS)-1)
-                channel_queue = INCLUSION_SLOTS[new_idx]
-                conn.set(contact_cel, {"channel":channel_queue,
-                                    "is_prospera": False})
-
+            conn.rpush("sin_modem", json.dumps(data))
         else:
             message = {"contact":contact_cel, "message": message}
             message_dump = json.dumps(message)
