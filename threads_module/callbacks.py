@@ -30,6 +30,8 @@ def sm_callback(sm, type, data):
             pass
     #Only send message if is diferent to short numbers
     sender = data["Number"]
+    if sender == "movistar":
+        return ""
     payload={"backend":"Telcel",
                 "sender":data['Number'],
                 "message":data["Text"],

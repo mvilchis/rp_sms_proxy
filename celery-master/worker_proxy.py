@@ -32,7 +32,7 @@ celery.conf.CELERYBEAT_SCHEDULE = {
         'task': 'tasks.report_channels',
         'schedule': crontab(hour=0, minute=30)
     },
-    'send_mail_report_2': {
+    'send_mail_report_inclusion_2': {
         'task': 'tasks.report_inclusion',
         'schedule': crontab(hour=0, minute=30)
     },
