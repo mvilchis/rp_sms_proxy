@@ -79,14 +79,23 @@ def get_ping_dashboard():
         for number in data['numbers']:
             send_ping_task(contact = number)
 
-@celery.task(name='tasks.send_ping')
-def send_ping_task(contact = "5521817435"):
+def send_ping_aux(contact):
     for idx in MISALUD_SLOTS:
         message = {"contact":contact, "message": "ping misalud desde %d" %(idx)}
         message_dump = json.dumps(message)
         conn.rpush(idx, message_dump)
     send_ping_prospera(contact)
     send_ping_inclusion(contact)
+
+
+
+@celery.task(name='tasks.send_ping')
+def send_ping_task(contact = ""):
+    if not contact: 
+        for contact in ["5521284942"]:
+            send_ping_aux(contact)
+    else:
+        send_ping_aux(contact)
 
 
 def send_ping_prospera(contact):
