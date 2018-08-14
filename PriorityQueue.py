@@ -12,6 +12,9 @@ class PriorityQueue(object):
     def first(self):
         return self._r.zrevrange(self.queue, 0, 0)[0]
 
+    def len(self):
+        return self._r.zcount(self.queue, 0, 100)
+
     def pop(self):
         try:
             _item = self.first

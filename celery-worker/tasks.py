@@ -137,7 +137,7 @@ def report_inclusion_task():
             html +="""<td align="center">%d</td>""" %(idx)
             html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_sent_sms"))
             html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_failed_sms"))
-            html +="""<td align="center">%d</td>"""%(conn.llen(idx))
+            html +="""<td align="center">%d</td>"""%(priority_queues[idx].len())
             html +="""<td align="center">%s</td>"""%(conn.get("_"+str(idx)+"_not_sent_sms"))
             html += """</tr>"""
             conn.set("_"+str(idx)+"_sent_sms",0)
