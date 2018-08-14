@@ -24,11 +24,12 @@ def save_logs(idx,message,sent):
     :param message: <string> String with message value
     :param sent: <boolean> If the message was sent or not
     """
+    print ("[LOG] %d %s %s"%(idx, message, sent))
     if sent:
         conn.incr("_"+str(idx)+"_sent_sms")
         conn.rpush("sent_message_"+str(idx), message)
     else:
-        conn.incr("_"+str(idx)+"_faild_sms")
+        conn.incr("_"+str(idx)+"_failed_sms")
         conn.rpush("failed_message_"+str(idx),message)
 
 def send_sms(sm_item, idx):
