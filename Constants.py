@@ -2,8 +2,7 @@ import os
 import configparser
 
 config = configparser.ConfigParser()
-config.read('keys.ini', encoding='utf-8')
-
+config.read('../keys.ini', encoding='utf-8')
 #############       General constants             ###############
 DATE_FORMAT = "%d/%m/%Y-%H:%M"
 MAX_TIME_RESPONSE = 1440  # If contact send us a message before max_time
@@ -39,9 +38,9 @@ INCLUSION_MODEM = "inclusion"
 INCLUSION_SLOTS = [4,5,6,7,12]
 
 INCLUSION_MAPPING = {
-    "inclusion_4" : {"number":4,  "handler":config["inclusion"][HANDLER_4]},
-    "inclusion_5" : {"number":5,  "handler":config["inclusion"][HANDLER_5]},
-    "inclusion_6" : {"number":6,  "handler":config["inclusion"][HANDLER_6]},
-    "inclusion_7" : {"number":7,  "handler":config["inclusion"][HANDLER_7]},
-    "inclusion_12": {"number":12, "handler":config["inclusion"][HANDLER_12]},
+    "inclusion_4" : {"number":4,  "handler":config["inclusion"]["HANDLER_4"]},
+    "inclusion_5" : {"number":5,  "handler":config["inclusion"]["HANDLER_5"]},
+    "inclusion_6" : {"number":6,  "handler":config["inclusion"]["HANDLER_6"]},
+    "inclusion_7" : {"number":7,  "handler":config["inclusion"]["HANDLER_7"]},
+    "inclusion_12": {"number":12, "handler":config["inclusion"]["HANDLER_12"]},
 }

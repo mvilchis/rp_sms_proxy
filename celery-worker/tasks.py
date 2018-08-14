@@ -13,20 +13,20 @@ import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from PriorityQueue import PriorityQueue
 import requests
 from celery import Celery
 
-from Constants import *
 
 ##############     My constants     ##############
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
+from Constants import *
+from PriorityQueue import PriorityQueue
 
 ##############    PriorityQueues    ##############
-MODEM_MAPING = [item[modem]["number"] for modem in INCLUSION_MAPPING.keys()]
-priority_queues = { i: PriorityQueu(i) for i in MODEM_MAPING}
+MODEM_MAPING = [INCLUSION_MAPPING[modem]["number"] for modem in INCLUSION_MAPPING.keys()]
+priority_queues = { i: PriorityQueue(i) for i in MODEM_MAPING}
 conn = redis.Redis(REDIS_HOST)
 celery= Celery('tasks',
                 broker=CELERY_BROKER_URL,
@@ -73,31 +73,33 @@ def get_last_msgs():
         resp = requests.get(url=RP_LAST_MESSAGES)
         data = json.loads(resp.text)
         send_messages(data['results'])
-    except e as E:
+    except Exception as e:
         print ("[ERROR] in get_last_msgs")
-        print (E)
+        print (e)
 
 
 @celery.task(name='tasks.send_ping')
 def send_ping_task(contact = "5521817435"):
     for idx in INCLUSION_SLOTS:
-        message = {"contact":contact, "message": "ping misalud desde %d" %(idx)}
+        message = {"contact":contact,
+                   "message": "ping misalud desde %d" %(idx),
+                   "score": HIGH_PRIORITY}
         message_dump = json.dumps(message)
-        priority_queues[queue].push(message_dump, HIGH_PRIORITY)
+        priority_queues[idx].push(message_dump, HIGH_PRIORITY)
 
 
 @celery.task(name='tasks.report_inclusion')
 def report_inclusion_task():
     ### Create csv
-    failed_msgs = ""
-    send_msgs = ""
+    failed_msgs = "Contacto, Mensaje, Ultimo intento\n"
+    send_msgs = "Contacto, Mensaje, Hora de envio\n"
     for idx in INCLUSION_SLOTS:
         for i in range(conn.llen("failed_message_"+str(idx))):
             data = json.loads(conn.lpop("failed_message_"+str(idx)))
-            failed_msgs+= data["contact"]+","+data["message"]+"\n"
+            failed_msgs+= data["contact"]+","+data["message"]+","+data["sent_on"]+"\n"
         for i in range(conn.llen("sent_message_"+str(idx))):
             data = json.loads(conn.lpop("sent_message_"+str(idx)))
-            send_msgs+= data["contact"]+","+data["message"]+"\n"
+            send_msgs+= data["contact"]+","+data["message"]+","+data["sent_on"]+"\n"
     failed_csv = open('failed_msgs.csv', 'w')
     failed_csv.write(failed_msgs)
     failed_csv.close()

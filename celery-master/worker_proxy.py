@@ -9,12 +9,11 @@ from celery import Celery
 from celery.decorators import periodic_task
 from celery.schedules import crontab
 
-from Constants import *
-
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe())))
+##############     My constants     ##############
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
+sys.path.insert(0,parentdir)
+from Constants import *
 
 celery = Celery(
     'tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
