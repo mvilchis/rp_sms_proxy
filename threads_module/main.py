@@ -50,7 +50,12 @@ def send_sms(sm_item, idx):
                 payload = {"Text": data["message"],
                           "SMSC": {"Location":1},
                           "Number": data["contact"]}
-
+                if int(data["score"]) == HIGH_PRIORITY:
+                    print ("Mensaje con alta prioridad")
+                    time.sleep(TIME_TO_SLEEP_HP)
+                else:
+                    time.sleep(TIME_TO_SLEEP_LP)
+ 
                 try:
                     sm_item.SendSMS(payload)
                     #Add timestamp
@@ -64,17 +69,20 @@ def send_sms(sm_item, idx):
                     else:
                         data["sent_on"] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
                         save_logs(idx, json.dumps(data),False)
-                if int(data["score"]) == HIGH_PRIORITY:
-                    time.sleep(TIME_TO_SLEEP_HP)
-                else:
-                    time.sleep(TIME_TO_SLEEP_LP)
+            else:
+                signal = sm_item.GetSignalQuality()
+                time.sleep(1)
         else:
-            try:
-                status = sm_item.GetBatteryCharge()
-            except:
-                pass
+            signal = sm_item.GetSignalQuality()
             time.sleep(1)
 
+def try_enable(call, name):
+    try:
+        call()
+    except gammu.ERR_NOTSUPPORTED:
+        print('{0} notification is not supported.'.format(name))
+    except gammu.ERR_SOURCENOTAVAILABLE:
+        print('{0} notification is not enabled in Gammu.'.format(name))
 
 def create_thread(sm_item, idx, function_callback):
     """
@@ -86,10 +94,16 @@ def create_thread(sm_item, idx, function_callback):
                                          callback when modem receive a sms.
     """
     sm_item.SetIncomingCallback(function_callback)
-    try:
-        sm_item.SetIncomingSMS()
-    except gammu.ERR_NOTSUPPORTED:
-        print 'Your phone does not support incoming SMS notifications!'
+    # Enable notifications from calls
+    try_enable(sm_item.SetIncomingCall, 'Incoming calls')
+
+    # Enable notifications from cell broadcast
+    try_enable(sm_item.SetIncomingCB, 'Incoming cell broadcasts')
+
+    try_enable(sm_item.SetIncomingSMS, 'Incoming SMS')
+
+    # Enable notifications for incoming USSD
+    try_enable(sm_item.SetIncomingUSSD, 'Incoming USSD')
     # We need to keep communication with phone to get notifications
     thread = Thread(target = send_sms, args = (sm_item, idx))
     thread.start()

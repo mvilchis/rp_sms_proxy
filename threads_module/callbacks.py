@@ -5,6 +5,8 @@ import random
 import re
 import sys
 import time
+import redis
+from celery import Celery
 from datetime import datetime
 
 import requests
@@ -15,6 +17,10 @@ from Constants import *
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
+conn = redis.Redis(REDIS_HOST)
+celery= Celery('tasks',
+                broker=CELERY_BROKER_URL,
+                backend=CELERY_RESULT_BACKEND)
 
 ##################### Callback functions ########################
 
@@ -28,7 +34,7 @@ def sm_callback(sm, type, data):
             pass
     #Only send message if is diferent to short numbers
     sender = data["Number"]
-    if sender == "movistar":
+    if sender == "movistar" or not "Text" in data:
         return ""
     payload={"backend":"Telcel",
                 "sender":data['Number'],
@@ -45,26 +51,31 @@ def callback_inclusion_4(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
         r = requests.get(INCLUSION_MAPPING["inclusion_4"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
 
 def callback_inclusion_5(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
         r = requests.get(INCLUSION_MAPPING["inclusion_5"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
 
 def callback_inclusion_6(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
         r = requests.get(INCLUSION_MAPPING["inclusion_6"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
 
 def callback_inclusion_7(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
         r = requests.get(INCLUSION_MAPPING["inclusion_7"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
 
 def callback_inclusion_12(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
         r = requests.get(INCLUSION_MAPPING["inclusion_12"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
 
 INCLUSION_CALLBACK= [callback_inclusion_4, callback_inclusion_5,
                     callback_inclusion_6, callback_inclusion_7,

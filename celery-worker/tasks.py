@@ -96,10 +96,10 @@ def report_inclusion_task():
     for idx in INCLUSION_SLOTS:
         for i in range(conn.llen("failed_message_"+str(idx))):
             data = json.loads(conn.lpop("failed_message_"+str(idx)))
-            failed_msgs+= data["contact"]+","+data["message"]+","+data["sent_on"]+"\n"
+            failed_msgs+= data["contact"]+","+data["message"]+","+data["sent_on"]+","+str(data["score"])+"\n"
         for i in range(conn.llen("sent_message_"+str(idx))):
             data = json.loads(conn.lpop("sent_message_"+str(idx)))
-            send_msgs+= data["contact"]+","+data["message"]+","+data["sent_on"]+"\n"
+            send_msgs+= data["contact"]+","+data["message"]+","+data["sent_on"]+","+str(data["score"])+"\n"
     failed_csv = open('failed_msgs.csv', 'w')
     failed_csv.write(failed_msgs)
     failed_csv.close()

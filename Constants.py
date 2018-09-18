@@ -5,10 +5,10 @@ config = configparser.ConfigParser()
 config.read('../keys.ini', encoding='utf-8')
 #############       General constants             ###############
 DATE_FORMAT = "%d/%m/%Y-%H:%M"
-MAX_TIME_RESPONSE = 1440  # If contact send us a message before max_time
+MAX_TIME_RESPONSE = 120  # If contact send us a message before max_time
                           # We proccess their message with HIGH_PRIORITY
-MAX_HOUR = 19
-MIN_HOUR = 9
+MAX_HOUR = 21
+MIN_HOUR = 8
 TIME_TO_SLEEP_HP = 20
 TIME_TO_SLEEP_LP = 120
 ################ Rapidpro environment variables ################
