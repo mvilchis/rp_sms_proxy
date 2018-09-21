@@ -53,12 +53,20 @@ def send_sms(sm_item, idx):
                 if int(data["score"]) == HIGH_PRIORITY:
                     print ("Mensaje con alta prioridad")
                     for i in range(TIME_TO_SLEEP_HP):
-                        signal = sm_item.GetSignalQuality()
+                        try:
+                            status = sm_item.GetBatteryCharge()
+                            signal = sm_item.GetSignalQuality()
+                        except:
+                            pass
                         time.sleep(1)
         
                 else:
                     for i in range(TIME_TO_SLEEP_LP):
-                        signal = sm_item.GetSignalQuality()
+                        try:
+                            status = sm_item.GetBatteryCharge()
+                            signal = sm_item.GetSignalQuality()
+                        except:
+                            pass
                         time.sleep(1)
                 try:
                     sm_item.SendSMS(payload)
@@ -118,5 +126,5 @@ def main():
    load_inclusion()
    for  item_modem,redis_idx, callback_f in zip(list_inclusion,INCLUSION_SLOTS, INCLUSION_CALLBACK):
        create_thread(item_modem,redis_idx, callback_f)
-
+   print "Fin de carga"
 main()
