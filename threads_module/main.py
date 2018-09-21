@@ -48,7 +48,7 @@ def send_sms(sm_item, idx):
             if this_item:
                 data = json.loads(this_item)
                 payload = {"Text": data["message"],
-                          "SMSC": {"Location":1},
+                          "SMSC": {"Number":CEL_NUMBERS[idx]},
                           "Number": data["contact"]}
                 if int(data["score"]) == HIGH_PRIORITY:
                     print ("Mensaje con alta prioridad")

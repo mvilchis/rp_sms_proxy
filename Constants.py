@@ -44,3 +44,11 @@ INCLUSION_MAPPING = {
     "inclusion_7" : {"number":7,  "handler":config["inclusion"]["HANDLER_7"]},
     "inclusion_12": {"number":12, "handler":config["inclusion"]["HANDLER_12"]},
 }
+
+CEL_NUMBERS = {
+      4: "0445510765536", 
+      5: "0445511752478",
+      6: "0445569350689",
+      7: "0445533546942",
+     12: "0445528295639"
+}
