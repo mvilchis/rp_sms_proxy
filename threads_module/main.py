@@ -52,10 +52,14 @@ def send_sms(sm_item, idx):
                           "Number": data["contact"]}
                 if int(data["score"]) == HIGH_PRIORITY:
                     print ("Mensaje con alta prioridad")
-                    time.sleep(TIME_TO_SLEEP_HP)
+                    for i in range(TIME_TO_SLEEP_HP):
+                        signal = sm_item.GetSignalQuality()
+                        time.sleep(1)
+        
                 else:
-                    time.sleep(TIME_TO_SLEEP_LP)
- 
+                    for i in range(TIME_TO_SLEEP_LP):
+                        signal = sm_item.GetSignalQuality()
+                        time.sleep(1)
                 try:
                     sm_item.SendSMS(payload)
                     #Add timestamp

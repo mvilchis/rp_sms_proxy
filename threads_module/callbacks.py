@@ -30,8 +30,8 @@ def sm_callback(sm, type, data):
         #Now delete sms
         try:
             sm.DeleteSMS(Folder = data['Folder'], Location = data['Location'])
-        except:
-            pass
+        except Exception,e: 
+            print str(e)
     #Only send message if is diferent to short numbers
     sender = data["Number"]
     if sender == "movistar" or not "Text" in data:
