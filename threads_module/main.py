@@ -81,11 +81,19 @@ def send_sms(sm_item, idx):
                     else:
                         data["sent_on"] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
                         save_logs(idx, json.dumps(data),False)
-            else:
-                signal = sm_item.GetSignalQuality()
+            else: 
+                try:
+                    status = sm_item.GetBatteryCharge()
+                    signal = sm_item.GetSignalQuality()
+                except:
+                    pass
                 time.sleep(1)
         else:
-            signal = sm_item.GetSignalQuality()
+            try:
+                status = sm_item.GetBatteryCharge()
+                signal = sm_item.GetSignalQuality()
+            except:
+                pass
             time.sleep(1)
 
 def try_enable(call, name):
