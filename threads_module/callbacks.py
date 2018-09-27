@@ -30,7 +30,7 @@ def sm_callback(sm, type, data):
         #Now delete sms
         try:
             sm.DeleteSMS(Folder = data['Folder'], Location = data['Location'])
-        except Exception,e: 
+        except Exception,e:
             print str(e)
     #Only send message if is diferent to short numbers
     sender = data["Number"]
@@ -77,6 +77,38 @@ def callback_inclusion_12(sm, type, data):
         r = requests.get(INCLUSION_MAPPING["inclusion_12"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
+def callback_inclusion_13(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.get(INCLUSION_MAPPING["inclusion_13"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_14(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.get(INCLUSION_MAPPING["inclusion_14"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_15(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.get(INCLUSION_MAPPING["inclusion_15"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_20(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.get(INCLUSION_MAPPING["inclusion_20"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_21(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.get(INCLUSION_MAPPING["inclusion_21"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
 INCLUSION_CALLBACK= [callback_inclusion_4, callback_inclusion_5,
                     callback_inclusion_6, callback_inclusion_7,
-                    callback_inclusion_12]
+                    callback_inclusion_12,callback_inclusion_13,
+                    callback_inclusion_14,callback_inclusion_15,
+                    callback_inclusion_20,callback_inclusion_21]
