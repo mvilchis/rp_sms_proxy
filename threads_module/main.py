@@ -1,5 +1,6 @@
 from threading import Thread
 import inspect
+import random
 import os, redis, requests,time,json, random, re, sys
 from datetime import datetime
 from gammu_load import *
@@ -59,9 +60,9 @@ def send_sms(sm_item, idx):
                         except:
                             pass
                         time.sleep(1)
-        
+
                 else:
-                    for i in range(TIME_TO_SLEEP_LP):
+                    for i in range(TIME_TO_SLEEP_LP + random.randrange(0,30)):
                         try:
                             status = sm_item.GetBatteryCharge()
                             signal = sm_item.GetSignalQuality()
@@ -81,7 +82,7 @@ def send_sms(sm_item, idx):
                     else:
                         data["sent_on"] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
                         save_logs(idx, json.dumps(data),False)
-            else: 
+            else:
                 try:
                     status = sm_item.GetBatteryCharge()
                     signal = sm_item.GetSignalQuality()
