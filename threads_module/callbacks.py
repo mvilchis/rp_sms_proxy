@@ -14,7 +14,7 @@ import requests
 from Constants import *
 
 ##############     My constants     ##############
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+currentdir = os.path.dirname(os.path.abspath(inspect.postfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
 conn = redis.Redis(REDIS_HOST)
@@ -26,7 +26,7 @@ celery= Celery('tasks',
 
 def sm_callback(sm, type, data):
     if not data.has_key('Number'):
-        data = sm.GetSMS(data['Folder'], data['Location'])[0]
+        data = sm.postSMS(data['Folder'], data['Location'])[0]
         #Now delete sms
         try:
             sm.DeleteSMS(Folder = data['Folder'], Location = data['Location'])
@@ -50,61 +50,61 @@ def sm_callback(sm, type, data):
 def callback_inclusion_4(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_4"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_4"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 def callback_inclusion_5(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_5"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_5"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 def callback_inclusion_6(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_6"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_6"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 def callback_inclusion_7(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_7"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_7"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 def callback_inclusion_12(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_12"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_12"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 def callback_inclusion_13(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_13"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_13"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 def callback_inclusion_14(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_14"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_14"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 def callback_inclusion_15(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_15"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_15"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 def callback_inclusion_20(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_20"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_20"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 def callback_inclusion_21(sm, type, data):
     payload = sm_callback(sm,type,data)
     if payload:
-        r = requests.get(INCLUSION_MAPPING["inclusion_21"]["handler"], params = payload)
+        r = requests.post(INCLUSION_MAPPING["inclusion_21"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
 INCLUSION_CALLBACK= [callback_inclusion_4, callback_inclusion_5,
