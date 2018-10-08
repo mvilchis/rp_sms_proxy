@@ -104,6 +104,8 @@ def try_enable(call, name):
         print('{0} notification is not supported.'.format(name))
     except gammu.ERR_SOURCENOTAVAILABLE:
         print('{0} notification is not enabled in Gammu.'.format(name))
+    except:
+        print ("Error pero continuamos")
 
 def create_thread(sm_item, idx, function_callback):
     """
@@ -116,13 +118,7 @@ def create_thread(sm_item, idx, function_callback):
     """
     sm_item.SetIncomingCallback(function_callback)
     # Enable notifications from calls
-    try_enable(sm_item.SetIncomingCall, 'Incoming calls')
-
-    # Enable notifications from cell broadcast
-    try_enable(sm_item.SetIncomingCB, 'Incoming cell broadcasts')
-
     try_enable(sm_item.SetIncomingSMS, 'Incoming SMS')
-
     # Enable notifications for incoming USSD
     try_enable(sm_item.SetIncomingUSSD, 'Incoming USSD')
     # We need to keep communication with phone to get notifications
