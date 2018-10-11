@@ -88,6 +88,11 @@ def send_ping_task(contact = "5521817435"):
         priority_queues[idx].push(message_dump, HIGH_PRIORITY)
 
 
+@celery.task(name='tasks.make_call')
+def make_call(idx):
+    conn.set(str(idx)+"_call_now", "1")
+
+
 @celery.task(name='tasks.report_inclusion')
 def report_inclusion_task():
     ### Create csv

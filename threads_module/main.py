@@ -25,7 +25,8 @@ def save_logs(idx,message,sent):
     :param message: <string> String with message value
     :param sent: <boolean> If the message was sent or not
     """
-    print ("[LOG] %d %s %s"%(idx, message, sent))
+    with open("modem.logs", "a") as myfile:
+        myfile.write("[LOG] %d %s %s"%(idx, message, sent)
     if sent:
         conn.incr("_"+str(idx)+"_sent_sms")
         conn.rpush("sent_message_"+str(idx), message)
@@ -60,7 +61,6 @@ def send_sms(sm_item, idx):
                         except:
                             pass
                         time.sleep(1)
-
                 else:
                     for i in range(TIME_TO_SLEEP_LP + random.randrange(0,30)):
                         try:
@@ -97,6 +97,22 @@ def send_sms(sm_item, idx):
                 pass
             time.sleep(1)
 
+def make_call(sm_item, idx):
+    """
+    Call function of each thread. This function try to call a user
+    through sm_item.
+
+    :param sm_item: <gammu.StateMachine> proxy to connect with modem
+    :param idx: <int> Idx of the priority_queue
+    """
+    while True:
+        if conn.get(str(idx)+"_call_now") == "1":
+            conn.set(str(idx)+"_call_now", "0")
+            if int(idx)%2 == 0:
+                sm_item.DialVoice(PHONE_TO_CALL_A)
+            else:
+                sm_item.DialVoice(PHONE_TO_CALL_B)
+
 def try_enable(call, name):
     try:
         call()
@@ -122,8 +138,10 @@ def create_thread(sm_item, idx, function_callback):
     # Enable notifications for incoming USSD
     try_enable(sm_item.SetIncomingUSSD, 'Incoming USSD')
     # We need to keep communication with phone to get notifications
-    thread = Thread(target = send_sms, args = (sm_item, idx))
-    thread.start()
+    thread_1 = Thread(target = send_sms, args = (sm_item, idx))
+    thread_1.start()
+    thread_2 = Thread(target = make_call, args = (sm_item, idx))
+    thread_2.start()
     return
 
 def main():

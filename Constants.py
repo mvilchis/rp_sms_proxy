@@ -50,15 +50,19 @@ INCLUSION_MAPPING = {
     "inclusion_21": {"number":21, "handler":config["inclusion"]["HANDLER_21"]},
 }
 
+PHONE_TO_CALL_A = config["modem"]["PHONE_TO_CALL_A"]
+PHONE_TO_CALL_B = config["modem"]["PHONE_TO_CALL_B"]
+
+
 CEL_NUMBERS = {
-      4: "0445510765536",
-      5: "0445511752478",
-      6: "0445569350689",
-      7: "0445533546942",
-     12: "0445528295639",
-     13: "0445511106923",
-     14: "0445511100637",
-     15: "0445511125739",
-     20: "0445562499281",
-     21: "0445546916458",
+ 4: config["modem"]["phone_4"],
+ 5: config["modem"]["phone_5"],
+ 6: config["modem"]["phone_6"],
+ 7: config["modem"]["phone_7"],
+12: config["modem"]["phone_12"],
+13: config["modem"]["phone_13"],
+14: config["modem"]["phone_14"],
+15: config["modem"]["phone_15"],
+20: config["modem"]["phone_20"],
+21: config["modem"]["phone_21"]
 }
