@@ -26,7 +26,7 @@ celery= Celery('tasks',
 
 def sm_callback(sm, type, data):
     if not data.has_key('Number'):
-        data = sm.postSMS(data['Folder'], data['Location'])[0]
+        data = sm.GetSMS(data['Folder'], data['Location'])[0]
         #Now delete sms
         try:
             sm.DeleteSMS(Folder = data['Folder'], Location = data['Location'])

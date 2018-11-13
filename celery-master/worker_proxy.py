@@ -31,40 +31,40 @@ celery.conf.CELERYBEAT_SCHEDULE = {
         'task': 'tasks.send_ping',
         'schedule': crontab(hour=17, minute=30)
     },
-    'make_call_4': {
+    'make_call_20': {
         'task': 'tasks.make_call',
-        'schedule': crontab(hour=17, minute=00)
-        'args': (4)
+        'schedule': crontab(hour=17, minute=00),
+        'args': (20,)
     },
     'make_call_5': {
         'task': 'tasks.make_call',
-        'schedule': crontab(hour=17, minute=15)
-        'args': (5)
+        'schedule': crontab(hour=17, minute=15),
+        'args': (5,)
     },
     'make_call_6': {
         'task': 'tasks.make_call',
-        'schedule': crontab(hour=17, minute=20)
-        'args': (6)
+        'schedule': crontab(hour=17, minute=20),
+        'args': (6,)
     },
     'make_call_7': {
         'task': 'tasks.make_call',
-        'schedule': crontab(hour=17, minute=25)
-        'args': (7)
+        'schedule': crontab(hour=17, minute=25),
+        'args': (7,)
     },
-    'make_call_12': {
+    'make_call_21': {
         'task': 'tasks.make_call',
-        'schedule': crontab(hour=17, minute=35)
-        'args': (12)
+        'schedule': crontab(hour=17, minute=35),
+        'args': (21,)
     },
     'make_call_13': {
         'task': 'tasks.make_call',
-        'schedule': crontab(hour=17, minute=40)
-        'args': (13)
+        'schedule': crontab(hour=17, minute=40),
+        'args': (13,)
     },
     'make_call_14': {
         'task': 'tasks.make_call',
-        'schedule': crontab(hour=17, minute=45)
-        'args': (14)
+        'schedule': crontab(hour=17, minute=45),
+        'args': (14,)
     }
 
 }

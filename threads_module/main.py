@@ -26,7 +26,8 @@ def save_logs(idx,message,sent):
     :param sent: <boolean> If the message was sent or not
     """
     with open("modem.logs", "a") as myfile:
-        myfile.write("[LOG] %d %s %s"%(idx, message, sent)
+        myfile.write("[LOG %d][%s] %s\n"%(idx,sent, message))
+
     if sent:
         conn.incr("_"+str(idx)+"_sent_sms")
         conn.rpush("sent_message_"+str(idx), message)
@@ -46,14 +47,15 @@ def send_sms(sm_item, idx):
         ###### Check if we can send messages ####
         if  int(datetime.now().strftime("%H")) < MAX_HOUR and \
             int(datetime.now().strftime("%H")) > MIN_HOUR:
+            
             this_item = priority_queues[idx].pop()
             if this_item:
                 data = json.loads(this_item)
+                print (data)
                 payload = {"Text": data["message"],
                           "SMSC": {"Number":CEL_NUMBERS[idx]},
                           "Number": data["contact"]}
                 if int(data["score"]) == HIGH_PRIORITY:
-                    print ("Mensaje con alta prioridad")
                     for i in range(TIME_TO_SLEEP_HP):
                         try:
                             status = sm_item.GetBatteryCharge()
@@ -108,10 +110,13 @@ def make_call(sm_item, idx):
     while True:
         if conn.get(str(idx)+"_call_now") == "1":
             conn.set(str(idx)+"_call_now", "0")
-            if int(idx)%2 == 0:
-                sm_item.DialVoice(PHONE_TO_CALL_A)
-            else:
-                sm_item.DialVoice(PHONE_TO_CALL_B)
+            try:
+                if int(idx)%2 == 0:
+                    sm_item.DialVoice(PHONE_TO_CALL_A)
+                else:
+                    sm_item.DialVoice(PHONE_TO_CALL_B)
+            except:
+                print ("Fallo llamada en slot %s" %(str(idx)))
 
 def try_enable(call, name):
     try:

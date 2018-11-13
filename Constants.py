@@ -5,12 +5,12 @@ config = configparser.ConfigParser()
 config.read('../keys.ini', encoding='utf-8')
 #############       General constants             ###############
 DATE_FORMAT = "%d/%m/%Y-%H:%M"
-MAX_TIME_RESPONSE = 120  # If contact send us a message before max_time
+MAX_TIME_RESPONSE = 300  # If contact send us a message before max_time
                           # We proccess their message with HIGH_PRIORITY
 MAX_HOUR = 21
 MIN_HOUR = 8
 TIME_TO_SLEEP_HP = 20
-TIME_TO_SLEEP_LP = 150
+TIME_TO_SLEEP_LP = 1200
 ################ Rapidpro environment variables ################
 RP_LAST_MESSAGES = config["rapidpro"]["RP_LAST_MESSAGES"]
 
@@ -35,7 +35,7 @@ HIGH_PRIORITY = 5
 INCLUSION_MODEM = "inclusion"
 
 ##################        Manage queues       ###################
-INCLUSION_SLOTS = [4,5,6,7,12,13,14,15,20,21]
+INCLUSION_SLOTS = [5,6,7,13,14,15,20,21]
 
 INCLUSION_MAPPING = {
     "inclusion_4" : {"number":4,  "handler":config["inclusion"]["HANDLER_4"]},
