@@ -10,7 +10,7 @@ MAX_TIME_RESPONSE = 300  # If contact send us a message before max_time
 MAX_HOUR = 21
 MIN_HOUR = 8
 TIME_TO_SLEEP_HP = 20
-TIME_TO_SLEEP_LP = 1200
+TIME_TO_SLEEP_LP = 120
 ################ Rapidpro environment variables ################
 RP_LAST_MESSAGES = config["rapidpro"]["RP_LAST_MESSAGES"]
 
@@ -35,7 +35,7 @@ HIGH_PRIORITY = 5
 INCLUSION_MODEM = "inclusion"
 
 ##################        Manage queues       ###################
-INCLUSION_SLOTS = [5,6,7,13,14,15,20,21]
+INCLUSION_SLOTS = [5,6,7,13,14,15,20,21,0,1,2,3,8,9,10]
 
 INCLUSION_MAPPING = {
     "inclusion_4" : {"number":4,  "handler":config["inclusion"]["HANDLER_4"]},
@@ -48,6 +48,13 @@ INCLUSION_MAPPING = {
     "inclusion_15": {"number":15, "handler":config["inclusion"]["HANDLER_15"]},
     "inclusion_20": {"number":20, "handler":config["inclusion"]["HANDLER_20"]},
     "inclusion_21": {"number":21, "handler":config["inclusion"]["HANDLER_21"]},
+    "inclusion_0": {"number":0, "handler":config["inclusion"]["HANDLER_0"]},
+    "inclusion_1": {"number":1, "handler":config["inclusion"]["HANDLER_1"]},
+    "inclusion_2": {"number":2, "handler":config["inclusion"]["HANDLER_2"]},
+    "inclusion_3": {"number":3, "handler":config["inclusion"]["HANDLER_3"]},
+    "inclusion_8": {"number":8, "handler":config["inclusion"]["HANDLER_8"]},
+    "inclusion_9": {"number":9, "handler":config["inclusion"]["HANDLER_9"]},
+    "inclusion_10": {"number":10, "handler":config["inclusion"]["HANDLER_10"]},
 }
 
 PHONE_TO_CALL_A = config["modem"]["PHONE_TO_CALL_A"]
@@ -64,5 +71,12 @@ CEL_NUMBERS = {
 14: config["modem"]["phone_14"],
 15: config["modem"]["phone_15"],
 20: config["modem"]["phone_20"],
-21: config["modem"]["phone_21"]
+21: config["modem"]["phone_21"],
+0: config["modem"]["phone_0"],
+1: config["modem"]["phone_1"],
+2: config["modem"]["phone_2"],
+3: config["modem"]["phone_3"],
+8: config["modem"]["phone_8"],
+9: config["modem"]["phone_9"],
+10: config["modem"]["phone_10"],
 }

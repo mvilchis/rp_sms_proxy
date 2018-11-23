@@ -107,8 +107,61 @@ def callback_inclusion_21(sm, type, data):
         r = requests.post(INCLUSION_MAPPING["inclusion_21"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
+def callback_inclusion_0(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.post(INCLUSION_MAPPING["inclusion_0"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_1(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.post(INCLUSION_MAPPING["inclusion_1"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_2(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.post(INCLUSION_MAPPING["inclusion_2"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_3(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.post(INCLUSION_MAPPING["inclusion_3"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_8(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.post(INCLUSION_MAPPING["inclusion_8"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_9(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.post(INCLUSION_MAPPING["inclusion_9"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
+def callback_inclusion_10(sm, type, data):
+    payload = sm_callback(sm,type,data)
+    if payload:
+        r = requests.post(INCLUSION_MAPPING["inclusion_10"]["handler"], params = payload)
+        print ("Respuesta %s" %(payload))
+
 INCLUSION_CALLBACK= [callback_inclusion_5,
-                    callback_inclusion_6, callback_inclusion_7,
+                    callback_inclusion_6,
+                    callback_inclusion_7,
                     callback_inclusion_13,
-                    callback_inclusion_14,callback_inclusion_15,
-                    callback_inclusion_20,callback_inclusion_21]
+                    callback_inclusion_14,
+                    callback_inclusion_15,
+                    callback_inclusion_20,
+                    callback_inclusion_21,
+                    callback_inclusion_0,
+                    callback_inclusion_1,
+                    callback_inclusion_2,
+                    callback_inclusion_3,
+                    callback_inclusion_8,
+                    callback_inclusion_9,
+                    callback_inclusion_10,
+                    ]
