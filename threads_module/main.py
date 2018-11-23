@@ -44,6 +44,7 @@ def send_sms(sm_item, idx):
     :param idx: <int> Idx of the priority_queue
     """
     while True:
+        print ("Hola %d" %(idx)) 
         ###### Check if we can send messages ####
         if  int(datetime.now().strftime("%H")) < MAX_HOUR and \
             int(datetime.now().strftime("%H")) > MIN_HOUR:
@@ -65,6 +66,7 @@ def send_sms(sm_item, idx):
                         time.sleep(1)
                 else:
                     for i in range(TIME_TO_SLEEP_LP + random.randrange(0,30)):
+                        print("Sleep %d %d" %(i, idx))
                         try:
                             status = sm_item.GetBatteryCharge()
                             signal = sm_item.GetSignalQuality()
@@ -143,16 +145,23 @@ def create_thread(sm_item, idx, function_callback):
     # Enable notifications for incoming USSD
     try_enable(sm_item.SetIncomingUSSD, 'Incoming USSD')
     # We need to keep communication with phone to get notifications
+    print ("Start thread %d" %(idx))
     thread_1 = Thread(target = send_sms, args = (sm_item, idx))
     thread_1.start()
-    thread_2 = Thread(target = make_call, args = (sm_item, idx))
-    thread_2.start()
+    #thread_2 = Thread(target = make_call, args = (sm_item, idx))
+    #thread_2.start()
+    print ("Thread ready %d" %(idx))
     return
 
 def main():
    #Init inclusion
    load_inclusion()
+   print (len(list_inclusion))
+   print (INCLUSION_SLOTS)
+   print (INCLUSION_CALLBACK)
+   print ("Empieza carga")
    for  item_modem,redis_idx, callback_f in zip(list_inclusion,INCLUSION_SLOTS, INCLUSION_CALLBACK):
+       print ("Carga %d" %(redis_idx))
        create_thread(item_modem,redis_idx, callback_f)
    print "Fin de carga"
 main()
