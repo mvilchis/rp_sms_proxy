@@ -107,8 +107,8 @@ def callback_inclusion_21(sm, type, data):
         r = requests.post(INCLUSION_MAPPING["inclusion_21"]["handler"], params = payload)
         print ("Respuesta %s" %(payload))
 
-INCLUSION_CALLBACK= [callback_inclusion_4, callback_inclusion_5,
+INCLUSION_CALLBACK= [callback_inclusion_5,
                     callback_inclusion_6, callback_inclusion_7,
-                    callback_inclusion_12,callback_inclusion_13,
+                    callback_inclusion_13,
                     callback_inclusion_14,callback_inclusion_15,
                     callback_inclusion_20,callback_inclusion_21]
