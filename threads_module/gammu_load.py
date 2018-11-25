@@ -25,6 +25,6 @@ def load_gsm(list_modem, idx):
         return
     print ("Salida")
 
-def load_inclusion():
-    for i in INCLUSION_SLOTS:
+def load_inclusion(valid_slots = INCLUSION_SLOTS):
+    for i in valid_slots:
         load_gsm(list_inclusion, i)

@@ -1,6 +1,7 @@
 from threading import Thread
 import inspect
 import random
+import argparse
 import os, redis, requests,time,json, random, re, sys
 from datetime import datetime
 from gammu_load import *
@@ -16,6 +17,13 @@ from PriorityQueue import PriorityQueue
 MODEM_MAPING = [INCLUSION_MAPPING[modem]["number"] for modem in INCLUSION_MAPPING.keys()]
 priority_queues = { i: PriorityQueue(i) for i in MODEM_MAPING}
 conn = redis.Redis(REDIS_HOST)
+
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-s", "--slots", required=False,
+        help="slots to work with")
+args = vars(ap.parse_args())
+
 
 def save_logs(idx,message,sent):
     """
@@ -44,11 +52,11 @@ def send_sms(sm_item, idx):
     :param idx: <int> Idx of the priority_queue
     """
     while True:
-        print ("Hola %d" %(idx)) 
+        print ("Hola %d" %(idx))
         ###### Check if we can send messages ####
         if  int(datetime.now().strftime("%H")) < MAX_HOUR and \
             int(datetime.now().strftime("%H")) > MIN_HOUR:
-            
+
             this_item = priority_queues[idx].pop()
             if this_item:
                 data = json.loads(this_item)
@@ -154,13 +162,17 @@ def create_thread(sm_item, idx, function_callback):
     return
 
 def main():
-   #Init inclusion
-   load_inclusion()
-   print (len(list_inclusion))
-   print (INCLUSION_SLOTS)
-   print (INCLUSION_CALLBACK)
-   print ("Empieza carga")
-   for  item_modem,redis_idx, callback_f in zip(list_inclusion,INCLUSION_SLOTS, INCLUSION_CALLBACK):
+    slots = json.loads(args["slots"])
+    valid_slots = INCLUSION_SLOTS
+    callbacks = INCLUSION_CALLBACK.values()
+    if slots:
+        valid_slots = [i for i in slots if i in INCLUSION_SLOTS]
+        callbacks = [INCLUSION_CALLBACK[i] for i in valid_slots]
+
+    #Init inclusion
+    load_inclusion(valid_slots)
+
+   for  item_modem,redis_idx, callback_f in zip(list_inclusion,valid_slots, callbacks):
        print ("Carga %d" %(redis_idx))
        create_thread(item_modem,redis_idx, callback_f)
    print "Fin de carga"
